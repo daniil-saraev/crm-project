@@ -1,17 +1,17 @@
 # CRM
 A simple CRM that covers the following use-cases:
 
-  Clients:
-- Browse services
-- View example projects
-- View contacts
-- Place orders
+- Clients:
+  1. Browse services
+  2. View example projects
+  3. View contacts
+  4. Place orders
 
-  Managers:
-- View clients
-- View orders
-- View analytics
-- Create orders
-- Manage order state and details
+- Managers:
+  1. View clients
+  2. View orders
+  3. View analytics
+  4. Create orders
+  5. Manage order state and details
 
-
+![Architecture](https://github.com/daniil-saraev/crm-project/blob/main/Architecture.jpg)
