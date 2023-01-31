@@ -1,6 +1,6 @@
 ﻿using Ardalis.GuardClauses;
 using Crm.Backend.Core.Models.Orders;
-using Crm.Backend.Core.Models.Shared;
+using Crm.Shared.Models;
 
 namespace Crm.Backend.Core.Models.Clients
 {

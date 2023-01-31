@@ -1,6 +1,6 @@
 ﻿using Ardalis.GuardClauses;
 
-namespace Crm.Backend.Core.Models.Shared
+namespace Crm.Shared.Models
 {
     public class FullName
     {
@@ -8,11 +8,16 @@ namespace Crm.Backend.Core.Models.Shared
         public string MiddleName { get; }
         public string LastName { get; }
 
-        internal FullName(string firstName, string middleName, string lastName)
+        public FullName(string firstName, string middleName, string lastName)
         {
             FirstName = Guard.Against.NullOrWhiteSpace(firstName, nameof(firstName));
             LastName = Guard.Against.NullOrWhiteSpace(lastName, nameof(lastName));
             MiddleName = Guard.Against.NullOrWhiteSpace(middleName, nameof(middleName));
+        }
+
+        public override string ToString()
+        {
+            return $"{LastName} {FirstName} {MiddleName}";
         }
     }
 }
