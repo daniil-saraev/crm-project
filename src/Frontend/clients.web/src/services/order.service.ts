@@ -1,6 +1,6 @@
 
 import endpoints from '../configuration/config';
-import Order from '../models/Order';
+import Order from '../models/order';
 
 export default async function postOrder(order: Order, 
                                         handleSuccess: (body: any) => any, 

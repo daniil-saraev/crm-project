@@ -1,16 +1,14 @@
-html,
-body,
-#root,
-.app,
-.content {
+.app {
+  display: block;
+  position: relative;
+  text-align: center;
   height: 100%;
   width: 100%;
-  font-family: 'Roboto', 'Segoe UI', 'Oxygen',
-  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-  sans-serif;
+  padding: 20px;
 }
 
-.app {
-  display: flex;
-  position: relative;
+.content{
+  padding: 10px;
 }
+
+

@@ -1,11 +1,11 @@
 export default class Order 
 {
-    FirstName: string;
-    LastName: string;
-    Company: string|null;
-    PhoneNumber: string;    
-    Email: string;
-    Description: string;
+    public readonly FirstName: string;
+    public readonly LastName: string;
+    public readonly Company: string|null;
+    public readonly PhoneNumber: string;    
+    public readonly Email: string;
+    public readonly Description: string;
 
     constructor(firstName: string, 
         lastName: string, 
