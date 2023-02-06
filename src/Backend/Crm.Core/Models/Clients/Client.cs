@@ -6,31 +6,20 @@ namespace Crm.Core.Models.Clients
 {
     public class Client : Entity
     {
-        public FullName Name { get; private set; } = null!;
-        public string? Company { get; private set; }
+        public string Name { get; private set; } = null!;
         public ContactInfo ContactInfo { get; }
         internal IList<Order> Orders { get; init; }
 
-        internal Client(FullName name, ContactInfo contactInfo)
+        internal Client(string name, ContactInfo contactInfo)
         {
             SetName(name);
             ContactInfo = contactInfo ?? throw new ArgumentNullException(nameof(contactInfo));
             Orders = new List<Order>();
         }
 
-        internal Client(FullName name, ContactInfo contactInfo, string company) : this(name, contactInfo)
+        internal void SetName(string name)
         {
-            SetCompany(company);
-        }
-
-        internal void SetCompany(string company)
-        {
-            Company = Guard.Against.NullOrWhiteSpace(company, nameof(company));
-        }
-
-        internal void SetName(FullName name)
-        {
-            Name = name;
+            Name = Guard.Against.NullOrWhiteSpace(name, nameof(name));
         }
     }
 }

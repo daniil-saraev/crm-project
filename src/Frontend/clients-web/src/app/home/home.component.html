@@ -1,0 +1,55 @@
+<div class="grid grid-nogutter surface-section text-800">
+  <div class="col-12 md:col-6 p-6 text-center md:text-left flex align-items-center ">
+      <section>
+          <span class="block text-6xl font-bold mb-1">IT Консалтинг</span>
+          <div class="text-6xl text-primary font-bold mb-3">для современного бизнеса</div>
+          <p class="mt-0 mb-4 text-700 line-height-3">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+          <a label="Оставить заявку" href="#orderForm" class="btn btn-outline-primary"></a>
+      </section>
+  </div>
+  <div class="col-12 md:col-6 overflow-hidden">
+      <img src="assets/images/home.jpg" alt="Image" class="md:ml-auto block md:h-full" style="clip-path: polygon(8% 0, 100% 0%, 100% 100%, 0 100%)">
+  </div>
+</div>
+
+<div class="container">
+  <form id="orderForm" class="row g-3 needs-validation" novalidate [formGroup]="orderForm" (ngSubmit)="postOrder()">
+      <div class="col-md-4">
+          <label for="name" class="form-label">Имя</label>
+          <input type="text" class="form-control" id="name" formControlName="name" placeholder="Иван Иванов" required>
+          <div *ngIf="name.invalid && (name.dirty || name.touched)" class="invalid-feedback">
+              Пожалуйста, введите ваше имя
+          </div>
+      </div>
+      <div class="col-md-4">
+          <label for="phone" class="form-label">Телефон</label>
+          <div class="input-group">
+              <span class="input-group-text" id="plus">+</span>
+              <input type="tel" class="form-control" id="phone" formControlName="phoneNumber" aria-describedby="plus" placeholder="79998887766" required>
+              <div *ngIf="phone.invalid && (phone.dirty || phone.touched)" class="invalid-feedback">
+                  Номер телефона должен состоять только из цифр и иметь длину в 11 символов
+              </div>
+          </div>
+      </div>
+      <div class="col-md-4">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" class="form-control" id="email" formControlName="email" placeholder="email@mail.com" required>
+          <div *ngIf="email.invalid && (email.dirty || email.touched)" class="invalid-feedback">
+              Пожалуйста, введите корректный адрес эл. почты
+          </div>
+      </div>
+      <div class="col-md-4">
+          <label for="description" class="form-label">Ваш вопрос</label>
+          <input type="text" class="form-control" id="description" formControlName="description" placeholder="Разработка сайта" required>
+          <div *ngIf="description.invalid && (description.dirty || description.touched)" class="invalid-feedback">
+              Пожауйста, опишите вашу проблему
+          </div>
+      </div>
+      <div class="col-12">
+        <button class="btn btn-primary" type="submit" [disabled]="!orderForm.valid">Отправить</button>
+      </div>
+  </form>
+</div>
+
+<p-toast position="bottom-right"></p-toast>
+
