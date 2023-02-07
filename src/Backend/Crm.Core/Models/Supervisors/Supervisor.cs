@@ -1,9 +1,8 @@
-﻿using Crm.Core.Models;
-using Crm.Core.Models.Managers;
+﻿using Crm.Core.Models.Managers;
 
 namespace Crm.Core.Models.Supervisors
 {
-    public class Supervisor : Entity
+    public class Supervisor : Entity, IAggregateRoot
     {
         internal IList<Manager> Managers { get; init; }
 

@@ -4,7 +4,7 @@ using Crm.Core.Models.Orders;
 
 namespace Crm.Core.Models.Managers
 {
-    public class Manager : Entity
+    public class Manager : Entity, IAggregateRoot
     {
         public Guid SupervisorId { get; private set; }
         internal IList<OrderInWork> OrdersInWork { get; init; }

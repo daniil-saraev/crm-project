@@ -2,7 +2,7 @@
 
 namespace Crm.Shared.Models
 {
-    public class FullName
+    public class FullName : ValueObject
     {
         public string FirstName { get; }
         public string? MiddleName { get; }

@@ -2,27 +2,18 @@
 
 namespace Crm.Shared.Models
 {
-    public class ContactInfo
-    {
-        public string Email { get; private set; } = null!;
-        public string PhoneNumber { get; private set; } = null!;
+    public class ContactInfo : ValueObject
+    { 
+        public string Email { get; } = null!;
+        public string PhoneNumber { get; } = null!;
 
         public ContactInfo(string email, string phoneNumber)
         {
-            SetEmail(email);
-            SetPhoneNumber(phoneNumber);
-        }
-
-        public void SetEmail(string email)
-        {
-            if(email == null || !EmailValidator.Validate(email))
+            if (email == null || !EmailValidator.Validate(email))
                 throw new ArgumentException(null, nameof(email));
             Email = email;
-        }
 
-        public void SetPhoneNumber(string phoneNumber)
-        {
-            if(!IsValidNumber(phoneNumber))
+            if (!IsValidNumber(phoneNumber))
                 throw new ArgumentException(null, nameof(phoneNumber));
             PhoneNumber = phoneNumber;
         }

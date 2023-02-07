@@ -7,7 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>Crm.Clients</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+		
+  <ItemGroup>
     <PackageReference Include="Ardalis.GuardClauses" Version="4.0.1" />
+    <PackageReference Include="Ardalis.Specification" Version="6.1.0" />
+    <PackageReference Include="Ardalis.Result" Version="4.2.0" />
   </ItemGroup>
 
   <ItemGroup>
