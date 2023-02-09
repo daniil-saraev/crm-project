@@ -1,4 +1,4 @@
-# CRM
+# Overview
 A simple CRM that covers the following use-cases:
 
 - Client:
