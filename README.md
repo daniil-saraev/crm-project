@@ -12,6 +12,7 @@ A simple CRM that covers the following use-cases:
   2. View his orders
   3. View personal analytics
   4. Manage order state and details
+  5. Edit clients' data
 
 - Supervisor:
   1. Assign orders to managers

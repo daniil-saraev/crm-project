@@ -3,9 +3,9 @@ using Crm.Core.Models.Clients;
 
 namespace Crm.Clients.Specifications
 {
-    public class GetByPhoneNumber : Specification<Client>
+    public class ClientByPhoneNumber : Specification<Client>, ISingleResultSpecification
     {
-        public GetByPhoneNumber(string phoneNumber)
+        public ClientByPhoneNumber(string phoneNumber)
         {
             Query.Where(client => client.ContactInfo.PhoneNumber == phoneNumber);
         }

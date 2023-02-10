@@ -1,6 +1,6 @@
 ﻿namespace Crm.Core.Models
 {
-    public interface IAggregateRoot 
+    public interface IAggregateRoot
     {
     }
 }

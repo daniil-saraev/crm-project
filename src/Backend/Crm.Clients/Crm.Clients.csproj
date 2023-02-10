@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Crm.Core\Crm.Core.csproj" />
-    <ProjectReference Include="..\Crm.Dto\Crm.Dto.fsproj" />
   </ItemGroup>
 
 </Project>
