@@ -17,6 +17,7 @@ A simple CRM that covers the following use-cases:
 - Supervisor:
   1. Assign orders to managers
   2. View managers' stats
-  3. Manage managers' accounts
+  3. Create managers' accounts
+  4. Transfer managers to other supervisors
 
 ![Architecture](https://github.com/daniil-saraev/crm-project/blob/main/Architecture.jpg)

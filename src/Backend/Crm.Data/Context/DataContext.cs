@@ -1,16 +1,15 @@
-﻿using Crm.Core.Models.Clients;
-using Crm.Core.Models.Managers;
-using Crm.Core.Models.Orders;
-using Crm.Core.Models.Supervisors;
+﻿using Crm.Core.Clients;
+using Crm.Core.Managers;
+using Crm.Core.Orders;
+using Crm.Core.Supervisors;
 using Microsoft.EntityFrameworkCore;
 
 namespace Crm.Data.Context
 {
-    public class DataContext : DbContext
+    internal class DataContext : DbContext
     {
-        internal DataContext (DbContextOptions<DataContext> options) : base(options)
-        {
-
+        public DataContext (DbContextOptions<DataContext> options) : base(options)
+        { 
         }
 
         public DbSet<Client> Clients => Set<Client>();

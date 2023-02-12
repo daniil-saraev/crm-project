@@ -1,104 +1,96 @@
 ﻿using Ardalis.Result;
-using Crm.Managers.Contracts;
-using Crm.Core.Interfaces;
 using Crm.Managers.Interfaces;
-using Crm.Core.Models.Managers;
 using Ardalis.GuardClauses;
-using Crm.Data.Context;
-using Microsoft.EntityFrameworkCore;
-using Z.EntityFramework.Plus;
+using Crm.Core.Managers;
+using Crm.Shared.Repository;
+using Crm.Managers.Queries;
 
 namespace Crm.Managers.Services
 {
     internal class ManagerService : IManagerService
     {
-        private readonly IRepository<Manager> _repository;
-        private readonly DataContext _dataContext;
+        private readonly IWriteRepository<Manager> _writeRepository;
+        private readonly IReadRepository<Manager> _readRepository;
         
-        public ManagerService(IRepository<Manager> repository, DataContext dataContext) 
+        public ManagerService(IWriteRepository<Manager> writeRepository, IReadRepository<Manager> readRepository) 
         {
-            _repository = repository;
-            _dataContext = dataContext;
+            _writeRepository = writeRepository;
+            _readRepository = readRepository;
         }
 
         public async Task<Result> CompleteOrder(CompleteOrder request, CancellationToken cancellationToken)
         {
-            try
+            return await ExecuteAndReturnResult(async () =>
             {
-                var manager = await _dataContext.Managers
-                    .Where(manager => manager.Id == request.ManagerId)
-                    .IncludeFilter(manager => manager.OrdersInWork
-                    .Where(order => order.Id == request.OrderInWorkId)
-                    .SingleOrDefault())
-                    .SingleOrDefaultAsync(cancellationToken);
-
-                if (manager == null)
-                    return Result.NotFound(request.ManagerId.ToString(), nameof(Manager));
-
+                var manager = await FindManagerWithOrder(request.ManagerId, request.OrderInWorkId, cancellationToken);
                 manager.CompleteOrder(request.OrderInWorkId, request.Status, request.Comment);
-
                 return await SaveChangesAndReturnSuccess(manager, cancellationToken);
-            }
-            catch (NotFoundException ex)
-            {
-                return Result.NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return Result.Error(ex.Message);
-            }
+            });
         }
 
         public async Task<Result> EditOrderDescription(EditOrderDescription request, CancellationToken cancellationToken)
         {
-            try
+            return await ExecuteAndReturnResult(async () =>
             {
-                var manager = await _repository.GetByIdAsync(request.ManagerId, cancellationToken);
-                if (manager == null)
-                    return Result.NotFound(request.ManagerId.ToString(), nameof(Manager));
-
+                var manager = await FindManagerWithOrder(request.ManagerId, request.OrderInWorkId, cancellationToken);
                 manager.SetOrderDescription(request.OrderInWorkId, request.Description);
                 return await SaveChangesAndReturnSuccess(manager, cancellationToken);
-            }
-            catch (NotFoundException ex)
-            {
-                return Result.NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return Result.Error(ex.Message);
-            }
+            });
         }
 
         public async Task<Result> EditClientContactInfo(EditClientInfo request, CancellationToken cancellationToken)
         {
-            try
+            return await ExecuteAndReturnResult(async () =>
             {
-                var manager = await _repository.GetByIdAsync(request.ManagerId, cancellationToken);
-                if (manager == null)
-                    return Result.NotFound(request.ManagerId.ToString(), nameof(Manager));
+                var manager = await FindManagerWithClient(request.ManagerId, request.ClientId, cancellationToken);
                 manager.SetClientContactInfo(request.ClientId, request.Email, request.PhoneNumber);
                 return await SaveChangesAndReturnSuccess(manager, cancellationToken);
-            }
-            catch (NotFoundException ex)
-            {
-                return Result.NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return Result.Error(ex.Message);
-            }
+            });
         }
 
         public async Task<Result> EditClientName(EditClientName request, CancellationToken cancellationToken)
         {
-            try
+            return await ExecuteAndReturnResult(async () =>
             {
-                var manager = await _repository.GetByIdAsync(request.ManagerId, cancellationToken);
-                if (manager == null)
-                    return Result.NotFound(request.ManagerId.ToString(), nameof(Manager));
+                var manager = await FindManagerWithClient(request.ManagerId, request.ClientId, cancellationToken);
                 manager.SetClientName(request.ClientId, request.Name);
                 return await SaveChangesAndReturnSuccess(manager, cancellationToken);
+            });
+        }
+
+        private async Task<Manager> FindManagerWithOrder(Guid managerId, Guid orderInWorkId, CancellationToken cancellationToken)
+        {
+            var manager = await _readRepository.Execute(
+            new ManagerWithOrderInWorkQuery(managerId, orderInWorkId),
+                    cancellationToken);
+            if (manager == null)
+                throw new NotFoundException(managerId.ToString(), nameof(Manager));
+            return manager;
+        }
+
+        private async Task<Manager> FindManagerWithClient(Guid managerId, Guid clientId, CancellationToken cancellationToken)
+        {
+            var manager = await _readRepository.Execute(
+                    new ManagerWithClientQuery(managerId, clientId),
+                    cancellationToken);
+            if (manager == null)
+                throw new NotFoundException(managerId.ToString(), nameof(Manager));
+            return manager;
+        }
+
+
+        private async Task<Result> SaveChangesAndReturnSuccess(Manager manager, CancellationToken cancellationToken)
+        {
+            await _writeRepository.Update(manager, cancellationToken);
+            await _writeRepository.SaveChanges(cancellationToken);
+            return Result.Success();
+        }
+
+        private async Task<Result> ExecuteAndReturnResult(Func<Task<Result>> operation)
+        {
+            try
+            {
+                return await operation();
             }
             catch (NotFoundException ex)
             {
@@ -108,13 +100,6 @@ namespace Crm.Managers.Services
             {
                 return Result.Error(ex.Message);
             }
-        }
-
-        private async Task<Result> SaveChangesAndReturnSuccess(Manager manager, CancellationToken cancellationToken)
-        {
-            await _repository.UpdateAsync(manager, cancellationToken);
-            await _repository.SaveChangesAsync(cancellationToken);
-            return Result.Success();
         }
     }
 }
