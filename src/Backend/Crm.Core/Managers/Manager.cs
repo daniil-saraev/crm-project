@@ -1,7 +1,6 @@
 ﻿using Ardalis.GuardClauses;
 using Crm.Core.Clients;
 using Crm.Core.Orders;
-using Crm.Core.Supervisors;
 using Crm.Shared.Models;
 using static Crm.Core.Orders.CompletedOrder;
 
@@ -14,10 +13,21 @@ namespace Crm.Core.Managers
         private IList<Client> _clients = new List<Client>();
 
         public Guid SupervisorId { get; private set; }
-        public Supervisor Supervisor { get; private set; } = null!;
-        public IReadOnlyCollection<OrderInWork> OrdersInWork => _ordersInWork.AsReadOnly();
-        public IReadOnlyCollection<CompletedOrder> CompletedOrders => _completedOrders.AsReadOnly();
-        public IReadOnlyCollection<Client> Clients => _clients.AsReadOnly();
+        public IReadOnlyCollection<OrderInWork> OrdersInWork
+        {
+            get { return _ordersInWork.AsReadOnly(); }
+            private set { _ordersInWork = value.ToList(); }
+        }
+        public IReadOnlyCollection<CompletedOrder> CompletedOrders
+        {
+            get { return _completedOrders.AsReadOnly(); }
+            private set { _completedOrders = value.ToList(); }
+        }
+        public IReadOnlyCollection<Client> Clients
+        {
+            get { return _clients.AsReadOnly(); }
+            private set { _clients = value.ToList(); }
+        }
 
         private Manager() { }
 

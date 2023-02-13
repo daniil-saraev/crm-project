@@ -1,5 +1,4 @@
 ﻿using Ardalis.GuardClauses;
-using Crm.Core.Managers;
 using Crm.Core.Orders;
 using Crm.Shared.Models;
 
@@ -11,18 +10,30 @@ namespace Crm.Core.Clients
         private IList<OrderInWork> _ordersInWork = new List<OrderInWork>();
         private IList<CompletedOrder> _completedOrders = new List<CompletedOrder>();
 
-        public Manager? Manager { get; private set; }
+        public Guid? ManagerId { get; private set; }
         public string Name { get; private set; } = null!;
         public ContactInfo ContactInfo { get; private set; } = null!;
-        public IReadOnlyCollection<CreatedOrder> CreatedOrders => _createdOrders.AsReadOnly();
-        public IReadOnlyCollection<OrderInWork> OrdersInWork => _ordersInWork.AsReadOnly();
-        public IReadOnlyCollection<CompletedOrder> CompletedOrders => _completedOrders.AsReadOnly();
+        public IReadOnlyCollection<CreatedOrder> CreatedOrders
+        {
+            get { return _createdOrders.AsReadOnly(); }
+            private set { _createdOrders = value.ToList(); }
+        }
+        public IReadOnlyCollection<OrderInWork> OrdersInWork
+        {
+            get { return _ordersInWork.AsReadOnly(); }
+            private set { _ordersInWork = value.ToList(); }
+        }
+        public IReadOnlyCollection<CompletedOrder> CompletedOrders
+        {
+            get { return _completedOrders.AsReadOnly(); }
+            private set { _completedOrders = value.ToList(); }
+        }
 
         private Client() { }
 
         public Client(string name, ContactInfo contactInfo)
         {
-            Manager = null;
+            ManagerId = null;
             SetName(name);
             SetContactInfo(contactInfo);
         }
@@ -32,9 +43,9 @@ namespace Crm.Core.Clients
             Name = Guard.Against.NullOrWhiteSpace(name, nameof(name));
         }
 
-        internal void AssignManager(Manager manager)
+        internal void AssignManager(Guid managerId)
         {
-            Manager = Guard.Against.Null(manager, nameof(manager));
+            ManagerId = Guard.Against.NullOrEmpty(managerId, nameof(managerId));
         }
 
         internal void SetContactInfo(ContactInfo contactInfo)

@@ -1,5 +1,4 @@
 ﻿using Ardalis.GuardClauses;
-using Crm.Core.Clients;
 using Crm.Shared.Models;
 
 namespace Crm.Core.Orders
@@ -7,9 +6,10 @@ namespace Crm.Core.Orders
     public abstract class Order : Entity
     {
         public Guid ClientId { get; }
-        public Client Client { get; } = null!;
         public DateTimeOffset Created { get; }
         public string Description { get; private set; } = null!;
+
+        protected Order() { }
 
         internal Order(Guid clientId, DateTimeOffset timeCreated, string description)
         {

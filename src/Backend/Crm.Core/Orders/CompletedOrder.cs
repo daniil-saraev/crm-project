@@ -1,30 +1,30 @@
 ﻿using Ardalis.GuardClauses;
-using Crm.Core.Managers;
 
 namespace Crm.Core.Orders
 {
     public class CompletedOrder : Order
     {
         public Guid ManagerId { get; }
-        public Manager Manager { get; } = null!;
         public DateTimeOffset Assigned { get; }
         public DateTimeOffset Closed { get; }
         public CompletionStatus Status { get; }
-        public string Comment { get; }
+        public string Comment { get; } = null!;
+
+        private CompletedOrder() : base() { }
 
         internal CompletedOrder(
             Guid clientId,
             Guid managerId,
-            DateTimeOffset timeCreated,
-            DateTimeOffset timeAssigned,
+            DateTimeOffset created,
+            DateTimeOffset assigned,
             string description,
-            CompletionStatus completionStatus,
-            string comment) : base(clientId, timeCreated, description)
+            CompletionStatus status,
+            string comment) : base(clientId, created, description)
         {
             ManagerId = Guard.Against.NullOrEmpty(managerId, nameof(managerId));
-            Assigned = timeAssigned;
+            Assigned = assigned;
             Closed = DateTimeOffset.Now;
-            Status = completionStatus;
+            Status = status;
             Comment = Guard.Against.NullOrWhiteSpace(comment, nameof(comment));
         }
 

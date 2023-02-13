@@ -1,13 +1,13 @@
 ﻿using Ardalis.GuardClauses;
-using Crm.Core.Managers;
 
 namespace Crm.Core.Orders
 {
     public class OrderInWork : Order
     {
         public Guid ManagerId { get; }
-        public Manager Manager { get; } = null!;
         public DateTimeOffset Assigned { get; }
+
+        private OrderInWork() : base() { }
 
         internal OrderInWork(
             Guid managerId,

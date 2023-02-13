@@ -7,6 +7,8 @@ namespace Crm.Shared.Models
         public string Email { get; } = null!;
         public string PhoneNumber { get; } = null!;
 
+        private ContactInfo() { }
+
         public ContactInfo(string email, string phoneNumber)
         {
             if (email == null || !EmailValidator.Validate(email))

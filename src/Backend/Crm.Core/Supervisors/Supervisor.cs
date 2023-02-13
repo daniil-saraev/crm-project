@@ -9,9 +9,13 @@ namespace Crm.Core.Supervisors
     {
         private IList<Manager> _managers = new List<Manager>();
 
-        public IReadOnlyCollection<Manager> Managers => _managers.AsReadOnly();
+        public IReadOnlyCollection<Manager> Managers
+        {
+            get { return _managers.AsReadOnly(); }
+            set { _managers = value.ToList(); }
+        }
 
-        internal Supervisor()
+        private Supervisor()
         {
         }
 

@@ -27,7 +27,7 @@ namespace Crm.Data
         }
 
         /// <summary>
-        /// Calls EnsureDeleted() then EnsureCreated().
+        /// Calls EnsureDeleted() then Migrate().
         /// </summary>
         public static void UseCleanDatabase(this IHost host)
         {
@@ -36,12 +36,12 @@ namespace Crm.Data
                 var scopedProvider = scope.ServiceProvider;
                 var dbContext = scopedProvider.GetRequiredService<DataContext>();
                 dbContext.Database.EnsureDeleted();
-                dbContext.Database.EnsureCreated();
+                dbContext.Database.Migrate();
             }
         }
 
         /// <summary>
-        /// Calls EnsureCreated() only.
+        /// Calls Migrate() only.
         /// </summary>
         public static void UseExistingDatabase(this IHost host)
         {
@@ -49,7 +49,7 @@ namespace Crm.Data
             {
                 var scopedProvider = scope.ServiceProvider;
                 var dbContext = scopedProvider.GetRequiredService<DataContext>();
-                dbContext.Database.EnsureCreated();
+                dbContext.Database.Migrate();
             }
         }
     }
