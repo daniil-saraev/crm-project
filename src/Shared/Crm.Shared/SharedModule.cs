@@ -10,9 +10,9 @@ namespace Crm.Shared
     {
         public static void LoadSharedModule(this IServiceCollection services)
         {
-            services.AddScoped<IEventBus, EventBus>();
-            services.AddScoped(typeof(IReadRepository<>), typeof(ReadRepository<>));
-            services.AddMediatR(config => config.AsScoped(), Assembly.GetExecutingAssembly());   
+            services.AddTransient<IEventBus, EventBus>();
+            services.AddTransient(typeof(IReadRepository<>), typeof(ReadRepository<>));
+            services.AddMediatR(config => config.AsTransient(), Assembly.GetExecutingAssembly());   
         }
     }
 }

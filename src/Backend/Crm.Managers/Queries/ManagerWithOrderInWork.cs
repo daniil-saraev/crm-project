@@ -23,7 +23,7 @@ namespace Crm.Managers.Queries
             var manager = await _context.Set<Manager>()
                     .Where(manager => manager.Id == request.ManagerId)
                     .IncludeFilter(manager => manager.OrdersInWork
-                    .Where(order => order.Id == request.OrderInWorkId))
+                        .Where(order => order.Id == request.OrderInWorkId))
                     .SingleOrDefaultAsync(cancellationToken);
             return manager;
         }

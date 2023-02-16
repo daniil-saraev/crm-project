@@ -2,7 +2,7 @@
 
 namespace Crm.Shared.Events
 {
-    public abstract class DomainEvent : INotification
+    public abstract record DomainEvent : INotification
     {
 
     }

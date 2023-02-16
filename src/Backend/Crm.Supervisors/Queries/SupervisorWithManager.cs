@@ -23,7 +23,7 @@ namespace Crm.Supervisors.Queries
             return await _dbContext.Set<Supervisor>()
                 .Where(supervisor => supervisor.Id == request.SupervisorId)
                 .IncludeFilter(supervisor => supervisor.Managers
-                .Where(manager => manager.Id == request.ManagerId))
+                    .Where(manager => manager.Id == request.ManagerId))
                 .SingleOrDefaultAsync(cancellationToken);
         }
     }

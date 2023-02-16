@@ -4,7 +4,7 @@ namespace Crm.Core.Orders
 {
     public class OrderInWork : Order
     {
-        public Guid ManagerId { get; }
+        public Guid ManagerId { get; private set; }
         public DateTimeOffset Assigned { get; }
 
         private OrderInWork() : base() { }
@@ -17,6 +17,11 @@ namespace Crm.Core.Orders
         {
             ManagerId = Guard.Against.NullOrEmpty(managerId, nameof(managerId));
             Assigned = DateTimeOffset.Now;
+        }
+
+        internal void AssignManager(Guid managerId)
+        {
+            ManagerId = Guard.Against.NullOrEmpty(managerId);
         }
     }
 }

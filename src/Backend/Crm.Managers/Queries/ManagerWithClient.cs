@@ -20,12 +20,11 @@ namespace Crm.Managers.Queries
 
         public async Task<Manager?> Handle(ManagerWithClientQuery request, CancellationToken cancellationToken)
         {
-            var manager = await _context.Set<Manager>()
-                    .Where(manager => manager.Id == request.ManagerId)
-                    .IncludeFilter(manager => manager.Clients
+            return await _context.Set<Manager>()
+                .Where(manager => manager.Id == request.ManagerId)
+                .IncludeFilter(manager => manager.Clients
                     .Where(client => client.Id == request.ClientId))
-                    .SingleOrDefaultAsync(cancellationToken);
-            return manager;
+                .SingleOrDefaultAsync(cancellationToken);
         }
     }
 }

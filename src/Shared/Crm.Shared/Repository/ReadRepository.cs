@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Crm.Shared.Repository
 {
-    internal class ReadRepository<TEntity> : IReadRepository<TEntity> where TEntity : Entity, IAggregateRoot
+    internal class ReadRepository<TEntity> : IReadRepository<TEntity> where TEntity : Entity
     {
         private readonly IMediator _mediator;
 

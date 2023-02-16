@@ -38,6 +38,15 @@ namespace Crm.Core.Clients
             SetContactInfo(contactInfo);
         }
 
+        public CreatedOrder PlaceOrder(string description)
+        {
+            var order = new CreatedOrder(
+                Id,
+                Guard.Against.NullOrWhiteSpace(description, nameof(description)));
+            _createdOrders.Add(order);
+            return order;
+        }
+
         internal void SetName(string name)
         {
             Name = Guard.Against.NullOrWhiteSpace(name, nameof(name));
@@ -52,13 +61,22 @@ namespace Crm.Core.Clients
         {
             ContactInfo = Guard.Against.Null(contactInfo, nameof(contactInfo));
         }
-
-        public void PlaceOrder(string description)
+        
+        internal CreatedOrder TakeOrderToWork(Guid createdOrderId)
         {
-            var order = new CreatedOrder(
-                Id,
-                Guard.Against.NullOrWhiteSpace(description, nameof(description)));
-            _createdOrders.Add(order);
+            var order = _createdOrders.FirstOrDefault(order => order.Id == createdOrderId);
+            if (order == null)
+                throw new NotFoundException(createdOrderId.ToString(), nameof(CreatedOrder));
+            _createdOrders.Remove(order);
+            return order;
+        }
+
+        internal void CompleteOrder(Guid orderInWorkId)
+        {
+            var order = _ordersInWork.FirstOrDefault(order => order.Id == orderInWorkId);
+            if (order == null)
+                throw new NotFoundException(orderInWorkId.ToString(), nameof(OrderInWork));
+            _ordersInWork.Remove(order);
         }
     }
 }

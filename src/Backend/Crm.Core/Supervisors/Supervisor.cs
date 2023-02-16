@@ -1,4 +1,5 @@
 ﻿using Ardalis.GuardClauses;
+using Crm.Core.Clients;
 using Crm.Core.Managers;
 using Crm.Core.Orders;
 using Crm.Shared.Models;
@@ -15,9 +16,7 @@ namespace Crm.Core.Supervisors
             set { _managers = value.ToList(); }
         }
 
-        private Supervisor()
-        {
-        }
+        private Supervisor() { }
 
         public void AddNewManager(Guid managerAccountId)
         {
@@ -38,18 +37,27 @@ namespace Crm.Core.Supervisors
             _managers.Add(manager);
         }
 
-        public void TransferManager(Guid managerId, Supervisor newSupervisor)
+        public void TransferManager(Guid managerId, Supervisor toSupervisor)
         {
             var manager = FindManager(managerId);
             _managers.Remove(manager);
-            newSupervisor.AcceptManager(manager);
+            toSupervisor.AcceptManager(manager);
         }
 
-
-        public void AssignOrder(Guid managerId, CreatedOrder createdOrder)
+        public void AssignClient(Guid managerId, Client client)
         {
             var manager = FindManager(managerId);
-            manager.AcceptOrder(createdOrder);
+            client.AssignManager(manager.Id);
+            manager.AcceptClient(client);
+        }
+
+        public void TransferClient(Guid fromManagerId, Guid toManagerId, Guid clientId)
+        {
+            var fromManager = FindManager(fromManagerId);
+            var toManager = FindManager(toManagerId);
+            var client = fromManager.GiveClient(clientId);
+            client.AssignManager(toManager.Id);
+            toManager.AcceptClient(client);
         }
 
         private Manager FindManager(Guid managerId)
