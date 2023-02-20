@@ -3,6 +3,7 @@ using Ardalis.Result;
 using Crm.Core.Managers;
 using Crm.Managers.Queries;
 using Crm.Shared.Repository;
+using MediatR;
 using static Crm.Core.Orders.CompletedOrder;
 
 namespace Crm.Managers.Commands
@@ -12,14 +13,9 @@ namespace Crm.Managers.Commands
     Guid ClientId,
     Guid OrderInWorkId,
     CompletionStatus Status,
-    string Comment);
+    string Comment) : IRequest<Result>;
 
-    public interface ICompleteOrder
-    {
-        Task<Result> CompleteOrder(CompleteOrderRequest request, CancellationToken cancellationToken);
-    }
-
-    internal class CompleteOrderHandler : ICompleteOrder
+    internal class CompleteOrderHandler : IRequestHandler<CompleteOrderRequest, Result>
     {
         private readonly IReadRepository<Manager> _readManager;
         private readonly IWriteRepository<Manager> _writeManager;
@@ -30,22 +26,11 @@ namespace Crm.Managers.Commands
             _writeManager = writeManager;
         }
 
-        public async Task<Result> CompleteOrder(CompleteOrderRequest request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(CompleteOrderRequest request, CancellationToken cancellationToken)
         {
-            try
-            {
-                var manager = await GetManagerWithClientAndOrdersInWork(request.ManagerId, request.ClientId, request.OrderInWorkId, cancellationToken);
-                manager.CompleteOrder(request.OrderInWorkId, request.Status, request.Comment);
-                return await SaveChangesAndReturnSuccess(manager, cancellationToken);
-            }
-            catch (NotFoundException ex)
-            {
-                return Result.NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return Result.Error(ex.Message);
-            }
+            var manager = await GetManagerWithClientAndOrdersInWork(request.ManagerId, request.ClientId, request.OrderInWorkId, cancellationToken);
+            manager.CompleteOrder(request.OrderInWorkId, request.Status, request.Comment);
+            return await SaveChangesAndReturnSuccess(manager, cancellationToken);
         }
 
         private async Task<Manager> GetManagerWithClientAndOrdersInWork(Guid managerId, Guid clientId, Guid orderInWorkId, CancellationToken cancellationToken)

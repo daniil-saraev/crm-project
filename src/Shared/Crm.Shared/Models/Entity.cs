@@ -8,7 +8,7 @@ namespace Crm.Shared.Models
         public Guid Id
         {
             get { return _id; }
-            init { _id = Guard.Against.NullOrEmpty(value); }
+            protected init { _id = Guard.Against.NullOrEmpty(value); }
         }
     }
 }

@@ -3,6 +3,7 @@ using Ardalis.Result;
 using Crm.Core.Managers;
 using Crm.Managers.Queries;
 using Crm.Shared.Repository;
+using MediatR;
 
 namespace Crm.Managers.Commands
 {
@@ -10,14 +11,9 @@ namespace Crm.Managers.Commands
     Guid ManagerId,
     Guid ClientId,
     string Email,
-    string PhoneNumber);
+    string PhoneNumber) : IRequest<Result>;
 
-    public interface IEditClientContactInfo
-    {
-        Task<Result> Execute(EditClientContactInfoRequest request, CancellationToken cancellationToken);
-    }
-
-    internal class EditClientContactInfoHandler : IEditClientContactInfo
+    internal class EditClientContactInfoHandler : IRequestHandler<EditClientContactInfoRequest, Result>
     {
         private readonly IReadRepository<Manager> _readManager;
         private readonly IWriteRepository<Manager> _writeManager;
@@ -28,22 +24,11 @@ namespace Crm.Managers.Commands
             _writeManager = writeManager;
         }
 
-        public async Task<Result> Execute(EditClientContactInfoRequest request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(EditClientContactInfoRequest request, CancellationToken cancellationToken)
         {
-            try
-            {
-                var manager = await GetManagerWithClient(request.ManagerId, request.ClientId, cancellationToken);
-                manager.SetClientContactInfo(request.ClientId, request.Email, request.PhoneNumber);
-                return await SaveChangesAndReturnSuccess(manager, cancellationToken);
-            }
-            catch (NotFoundException ex)
-            {
-                return Result.NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return Result.Error(ex.Message);
-            }
+            var manager = await GetManagerWithClient(request.ManagerId, request.ClientId, cancellationToken);
+            manager.SetClientContactInfo(request.ClientId, request.Email, request.PhoneNumber);
+            return await SaveChangesAndReturnSuccess(manager, cancellationToken);
         }
 
         private async Task<Manager> GetManagerWithClient(Guid managerId, Guid clientId, CancellationToken cancellationToken)

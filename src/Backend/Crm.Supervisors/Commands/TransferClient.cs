@@ -3,6 +3,7 @@ using Ardalis.Result;
 using Crm.Core.Supervisors;
 using Crm.Shared.Repository;
 using Crm.Supervisors.Queries;
+using MediatR;
 
 namespace Crm.Supervisors.Commands
 {
@@ -10,14 +11,9 @@ namespace Crm.Supervisors.Commands
         Guid SupervisorId,
         Guid FromManagerId,
         Guid ToManagerId,
-        Guid ClientId);
+        Guid ClientId) : IRequest<Result>;
 
-    public interface ITransferClient
-    {
-        Task<Result> TransferClient(TransferClientRequest request, CancellationToken cancellationToken);
-    }
-
-    internal class TransferClientHandler : ITransferClient
+    internal class TransferClientHandler : IRequestHandler<TransferClientRequest, Result>
     {
         private readonly IWriteRepository<Supervisor> _writeSupervisor;
         private readonly IReadRepository<Supervisor> _readSupervisor;
@@ -30,27 +26,16 @@ namespace Crm.Supervisors.Commands
             _readSupervisor = readSupervisor;
         }
 
-        public async Task<Result> TransferClient(TransferClientRequest request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(TransferClientRequest request, CancellationToken cancellationToken)
         {
-            try
-            {
-                var supervisor = await GetSupervisorWithManagers(
+            var supervisor = await GetSupervisorWithManagers(
                     request.SupervisorId,
                     request.FromManagerId,
                     request.ToManagerId,
                     request.ClientId,
                     cancellationToken);
-                supervisor.TransferClient(request.FromManagerId, request.ToManagerId, request.ClientId);
-                return await SaveChangesAndReturnSuccess(supervisor, cancellationToken);
-            }
-            catch (NotFoundException ex)
-            {
-                return Result.NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return Result.Error(ex.Message);
-            }
+            supervisor.TransferClient(request.FromManagerId, request.ToManagerId, request.ClientId);
+            return await SaveChangesAndReturnSuccess(supervisor, cancellationToken);
         }
 
         private async Task<Supervisor> GetSupervisorWithManagers(

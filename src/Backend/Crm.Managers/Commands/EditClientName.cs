@@ -3,20 +3,16 @@ using Ardalis.Result;
 using Crm.Core.Managers;
 using Crm.Managers.Queries;
 using Crm.Shared.Repository;
+using MediatR;
 
 namespace Crm.Managers.Commands
 {
     public record EditClientNameRequest(
     Guid ManagerId,
     Guid ClientId,
-    string Name);
+    string Name) : IRequest<Result>;
 
-    public interface IEditClientName
-    {
-        Task<Result> EditClientName(EditClientNameRequest request, CancellationToken cancellationToken);
-    }
-
-    internal class EditClientNameHandler : IEditClientName
+    internal class EditClientNameHandler : IRequestHandler<EditClientNameRequest, Result>
     {
         private readonly IReadRepository<Manager> _readManager;
         private readonly IWriteRepository<Manager> _writeManager;
@@ -27,22 +23,11 @@ namespace Crm.Managers.Commands
             _writeManager = writeManager;
         }
 
-        public async Task<Result> EditClientName(EditClientNameRequest request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(EditClientNameRequest request, CancellationToken cancellationToken)
         {
-            try
-            {
-                var manager = await GetManagerWithClient(request.ManagerId, request.ClientId, cancellationToken);
-                manager.SetClientName(request.ClientId, request.Name);
-                return await SaveChangesAndReturnSuccess(manager, cancellationToken);
-            }
-            catch (NotFoundException ex)
-            {
-                return Result.NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return Result.Error(ex.Message);
-            }
+            var manager = await GetManagerWithClient(request.ManagerId, request.ClientId, cancellationToken);
+            manager.SetClientName(request.ClientId, request.Name);
+            return await SaveChangesAndReturnSuccess(manager, cancellationToken);
         }
 
         private async Task<Manager> GetManagerWithClient(Guid managerId, Guid clientId, CancellationToken cancellationToken)

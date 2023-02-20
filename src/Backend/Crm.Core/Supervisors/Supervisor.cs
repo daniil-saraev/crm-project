@@ -1,7 +1,6 @@
 ﻿using Ardalis.GuardClauses;
 using Crm.Core.Clients;
 using Crm.Core.Managers;
-using Crm.Core.Orders;
 using Crm.Shared.Models;
 
 namespace Crm.Core.Supervisors
@@ -18,16 +17,18 @@ namespace Crm.Core.Supervisors
 
         private Supervisor() { }
 
+        public static Supervisor New(Guid supervisorAccountId)
+        {
+            return new Supervisor() { Id = supervisorAccountId };
+        }
+
         public void AddNewManager(Guid managerAccountId)
         {
             Guard.Against.NullOrEmpty(managerAccountId);
             if (_managers.FirstOrDefault(manager => manager.Id == managerAccountId) != null)
                 throw new InvalidOperationException();
 
-            var manager = new Manager(Id)
-            {
-                Id = managerAccountId
-            };
+            var manager = Manager.New(managerAccountId, Id);
             _managers.Add(manager);
         }
 
@@ -47,6 +48,8 @@ namespace Crm.Core.Supervisors
         public void AssignClient(Guid managerId, Client client)
         {
             var manager = FindManager(managerId);
+            if (client.ManagerId != null)
+                throw new InvalidOperationException();
             client.AssignManager(manager.Id);
             manager.AcceptClient(client);
         }

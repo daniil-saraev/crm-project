@@ -5,6 +5,7 @@ using Crm.Core.Clients.Events;
 using Crm.Shared.Events;
 using Crm.Shared.Models;
 using Crm.Shared.Repository;
+using MediatR;
 
 namespace Crm.Clients.Commands
 {
@@ -12,14 +13,9 @@ namespace Crm.Clients.Commands
         string Name,
         string Email,
         string PhoneNumber,
-        string Description);
+        string Description) : IRequest<Result>;
 
-    public interface ICreateOrder
-    {
-        Task<Result> Execute(CreateOrderRequest request, CancellationToken cancellationToken);
-    }
-
-    internal class CreateOrderHandler : ICreateOrder
+    internal class CreateOrderHandler : IRequestHandler<CreateOrderRequest, Result>
     {
         private readonly IReadRepository<Client> _readRepository;
         private readonly IWriteRepository<Client> _writeRepository;
@@ -32,22 +28,15 @@ namespace Crm.Clients.Commands
             _eventBus = eventBus;
         }
 
-        public async Task<Result> Execute(CreateOrderRequest request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(CreateOrderRequest request, CancellationToken cancellationToken)
         {
-            try
-            {
-                var client = await GetClientByPhoneNumber(request.PhoneNumber, cancellationToken);
-                client ??= new Client(request.Name, new ContactInfo(request.Email, request.PhoneNumber));
-                var order = client.PlaceOrder(request.Description);
-                await _writeRepository.Update(client, cancellationToken);
-                await _writeRepository.SaveChanges(cancellationToken);
-                await _eventBus.Publish(new OrderCreatedEvent(client.Id, order.Id, client.ManagerId));
-                return Result.Success();
-            }
-            catch (Exception ex)
-            {
-                return Result.Error(ex.Message);
-            }
+            var client = await GetClientByPhoneNumber(request.PhoneNumber, cancellationToken);
+            client ??= new Client(request.Name, new ContactInfo(request.Email, request.PhoneNumber));
+            var order = client.PlaceOrder(request.Description);
+            await _writeRepository.Update(client, cancellationToken);
+            await _writeRepository.SaveChanges(cancellationToken);
+            await _eventBus.Publish(new OrderCreatedEvent(client.Id, order.Id, client.ManagerId));
+            return Result.Success();
         }
 
         private async Task<Client?> GetClientByPhoneNumber(string phoneNumber, CancellationToken cancellationToken)

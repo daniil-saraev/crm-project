@@ -3,19 +3,15 @@ using Ardalis.Result;
 using Crm.Core.Supervisors;
 using Crm.Shared.Repository;
 using Crm.Supervisors.Queries;
+using MediatR;
 
 namespace Crm.Supervisors.Commands
 {
     public record AddNewManagerRequest(
         Guid SupervisorId,
-        Guid ManagerAccountId);
+        Guid ManagerAccountId) : IRequest<Result>;
 
-    public interface IAddNewManager
-    {
-        Task<Result> Execute(AddNewManagerRequest request, CancellationToken cancellationToken);
-    }
-
-    internal class AddNewManagerHandler : IAddNewManager
+    internal class AddNewManagerHandler : IRequestHandler<AddNewManagerRequest, Result>
     {
         private readonly IWriteRepository<Supervisor> _writeSupervisor;
         private readonly IReadRepository<Supervisor> _readSupervisor;
@@ -28,28 +24,17 @@ namespace Crm.Supervisors.Commands
             _readSupervisor = readSupervisor;
         }
 
-        public async Task<Result> Execute(AddNewManagerRequest request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(AddNewManagerRequest request, CancellationToken cancellationToken)
         {
-            try
-            {
-                var supervisor = await GetSupervisorById(request.SupervisorId, cancellationToken);
-                supervisor.AddNewManager(request.ManagerAccountId);
-                return await SaveChangesAndReturnSuccess(supervisor, cancellationToken);
-            }
-            catch (NotFoundException ex)
-            {
-                return Result.NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return Result.Error(ex.Message);
-            }
+            var supervisor = await GetSupervisorWithManagers(request.SupervisorId, cancellationToken);
+            supervisor.AddNewManager(request.ManagerAccountId);
+            return await SaveChangesAndReturnSuccess(supervisor, cancellationToken);
         }
 
-        private async Task<Supervisor> GetSupervisorById(Guid id, CancellationToken cancellationToken)
+        private async Task<Supervisor> GetSupervisorWithManagers(Guid id, CancellationToken cancellationToken)
         {
             var supervisor = await _readSupervisor.Execute(
-                new SupervisorByIdQuery(id),
+                new SupervisorWithManagersQuery(id),
                 cancellationToken);
             if (supervisor == null)
                 throw new NotFoundException(id.ToString(), nameof(Supervisor));

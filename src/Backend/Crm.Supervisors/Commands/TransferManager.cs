@@ -1,24 +1,18 @@
 ﻿using Ardalis.GuardClauses;
 using Ardalis.Result;
-using Crm.Core.Clients;
-using Crm.Core.Managers;
 using Crm.Core.Supervisors;
 using Crm.Shared.Repository;
 using Crm.Supervisors.Queries;
+using MediatR;
 
 namespace Crm.Supervisors.Commands
 {
     public record TransferManagerRequest(
         Guid FromSupervisorId,
         Guid ToSupervisorId,
-        Guid ManagerId);
+        Guid ManagerId) : IRequest<Result>;
 
-    public interface ITransferManager
-    {
-        Task<Result> Execute(TransferManagerRequest request, CancellationToken cancellationToken);
-    }
-
-    internal class TransferManagerHandler : ITransferManager
+    internal class TransferManagerHandler : IRequestHandler<TransferManagerRequest, Result>
     {
         private readonly IWriteRepository<Supervisor> _writeSupervisor;
         private readonly IReadRepository<Supervisor> _readSupervisor;
@@ -31,26 +25,15 @@ namespace Crm.Supervisors.Commands
             _readSupervisor = readSupervisor;
         }
 
-        public async Task<Result> Execute(TransferManagerRequest request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(TransferManagerRequest request, CancellationToken cancellationToken)
         {
-            try
-            {
-                var fromSupervisor = await GetSupervisorWithManager(request.FromSupervisorId, request.ManagerId, cancellationToken);
-                var toSupervisor = await GetSupervisor(request.ToSupervisorId, cancellationToken);
-                fromSupervisor.TransferManager(request.ManagerId, toSupervisor);
-                await _writeSupervisor.Update(fromSupervisor, cancellationToken);
-                await _writeSupervisor.Update(toSupervisor, cancellationToken);
-                await _writeSupervisor.SaveChanges(cancellationToken);
-                return Result.Success();
-            }
-            catch (NotFoundException ex)
-            {
-                return Result.NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return Result.Error(ex.Message);
-            }
+            var fromSupervisor = await GetSupervisorWithManagers(request.FromSupervisorId, cancellationToken);
+            var toSupervisor = await GetSupervisor(request.ToSupervisorId, cancellationToken);
+            fromSupervisor.TransferManager(request.ManagerId, toSupervisor);
+            await _writeSupervisor.Update(fromSupervisor, cancellationToken);
+            await _writeSupervisor.Update(toSupervisor, cancellationToken);
+            await _writeSupervisor.SaveChanges(cancellationToken);
+            return Result.Success();
         }
 
         private async Task<Supervisor> GetSupervisor(Guid id, CancellationToken cancellationToken)
@@ -63,10 +46,10 @@ namespace Crm.Supervisors.Commands
             return supervisor;
         }
 
-        private async Task<Supervisor> GetSupervisorWithManager(Guid supervisorId, Guid managerId, CancellationToken cancellationToken)
+        private async Task<Supervisor> GetSupervisorWithManagers(Guid supervisorId, CancellationToken cancellationToken)
         {
             var supervisor = await _readSupervisor.Execute(
-                new SupervisorWithManagerQuery(supervisorId, managerId),
+                new SupervisorWithManagersQuery(supervisorId),
                 cancellationToken);
             if (supervisor == null)
                 throw new NotFoundException(supervisorId.ToString(), nameof(Supervisor));

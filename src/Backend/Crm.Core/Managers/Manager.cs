@@ -2,6 +2,7 @@
 using Crm.Core.Clients;
 using Crm.Core.Orders;
 using Crm.Shared.Models;
+using System.Collections.Immutable;
 using static Crm.Core.Orders.CompletedOrder;
 
 namespace Crm.Core.Managers
@@ -29,9 +30,12 @@ namespace Crm.Core.Managers
             private set { _clients = value.ToList(); }
         }
 
-        private Manager() { }
+        internal static Manager New(Guid managerAccountId, Guid supervisorId)
+        {
+            return new Manager(supervisorId) { Id = managerAccountId };
+        }
 
-        public Manager(Guid supervisorId)
+        private Manager(Guid supervisorId)
         {
             SetSupervisor(supervisorId);
         }
@@ -49,35 +53,34 @@ namespace Crm.Core.Managers
                 order.AssignManager(Id);
                 return order;
             }));
-            _ordersInWork.AddRange(client.CreatedOrders.Select(order =>
-            {
-                return new OrderInWork(
-                Id,
-                order.ClientId,
-                order.Created,
-                order.Description);
-            }));
+            var createdOrders = client.CreatedOrders.ToImmutableArray();
+            foreach (var order in createdOrders)
+                TakeOrder(order.Id, client.Id);
         }
 
         internal Client GiveClient(Guid clientId)
         {
             var client = FindClient(clientId);
+            _ordersInWork.RemoveAll(o => o.ClientId == clientId);
             _clients.Remove(client);
             return client;
         }
 
-        public void TakeOrder(Guid createdOrderId, Guid clientId)
+        public OrderInWork TakeOrder(Guid createdOrderId, Guid clientId)
         {
             var client = FindClient(clientId);
-            var order = client.TakeOrderToWork(createdOrderId);
-            _ordersInWork.Add(new OrderInWork(
+            var createdOrder = client.TakeOrderToWork(createdOrderId);
+            var orderInWork = new OrderInWork(
                 this.Id,
-                order.ClientId,
-                order.Created,
-                order.Description));
+                createdOrder.ClientId,
+                createdOrder.Created,
+                createdOrder.Description);
+            _ordersInWork.Add(orderInWork);
+            client.AddOrderInWork(orderInWork);
+            return orderInWork;
         }
 
-        public void CompleteOrder(Guid orderInWorkId, CompletionStatus status, string comment)
+        public CompletedOrder CompleteOrder(Guid orderInWorkId, CompletionStatus status, string comment)
         {
             var orderInWork = FindOrderInWork(orderInWorkId);
             var client = FindClient(orderInWork.ClientId);
@@ -91,7 +94,8 @@ namespace Crm.Core.Managers
                 comment);
             _completedOrders.Add(completedOrder);
             _ordersInWork.Remove(orderInWork);
-            client.CompleteOrder(orderInWorkId);
+            client.CompleteOrder(orderInWorkId, completedOrder);
+            return completedOrder;
         }
 
         public void SetOrderDescription(Guid orderInWorkId, string description)

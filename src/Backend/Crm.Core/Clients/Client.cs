@@ -71,12 +71,18 @@ namespace Crm.Core.Clients
             return order;
         }
 
-        internal void CompleteOrder(Guid orderInWorkId)
+        internal void AddOrderInWork(OrderInWork orderInWork)
+        {
+            _ordersInWork.Add(orderInWork);
+        }
+
+        internal void CompleteOrder(Guid orderInWorkId, CompletedOrder completedOrder)
         {
             var order = _ordersInWork.FirstOrDefault(order => order.Id == orderInWorkId);
             if (order == null)
                 throw new NotFoundException(orderInWorkId.ToString(), nameof(OrderInWork));
             _ordersInWork.Remove(order);
+            _completedOrders.Add(completedOrder);
         }
     }
 }

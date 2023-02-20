@@ -1,4 +1,4 @@
-﻿using Crm.Supervisors.Commands;
+﻿using Crm.Shared.ExceptionHandler;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
@@ -9,11 +9,11 @@ namespace Crm.Supervisors
     {
         public static void LoadSupervisorModule(this IServiceCollection services)
         {
-            services.AddTransient<IAddNewManager, AddNewManagerHandler>();
-            services.AddTransient<IAssignClient, AssignClientHandler>();
-            services.AddTransient<ITransferManager, TransferManagerHandler>();
-            services.AddTransient<ITransferClient, TransferClientHandler>();
-            services.AddMediatR(config => config.AsTransient(), Assembly.GetExecutingAssembly());
+            services.AddMediatR(config =>
+            {
+                config.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ExceptionHandlerBehavior<,>));
+                config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+            });
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Crm.Shared.Events;
+using Crm.Shared.ExceptionHandler;
 using Crm.Shared.Repository;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +13,11 @@ namespace Crm.Shared
         {
             services.AddTransient<IEventBus, EventBus>();
             services.AddTransient(typeof(IReadRepository<>), typeof(ReadRepository<>));
-            services.AddMediatR(config => config.AsTransient(), Assembly.GetExecutingAssembly());   
+            services.AddMediatR(config =>
+            {
+                config.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ExceptionHandlerBehavior<,>));
+                config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+            });  
         }
     }
 }

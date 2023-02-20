@@ -1,24 +1,19 @@
 ﻿using Ardalis.GuardClauses;
 using Ardalis.Result;
 using Crm.Core.Clients;
-using Crm.Core.Managers;
 using Crm.Core.Supervisors;
 using Crm.Shared.Repository;
 using Crm.Supervisors.Queries;
+using MediatR;
 
 namespace Crm.Supervisors.Commands
 {
     public record AssignClientRequest(
         Guid SupervisorId,
         Guid ManagerId,
-        Guid ClientId);
+        Guid ClientId) : IRequest<Result>;
 
-    public interface IAssignClient
-    {
-        Task<Result> Execute(AssignClientRequest request, CancellationToken cancellationToken);
-    }
-
-    internal class AssignClientHandler : IAssignClient
+    internal class AssignClientHandler : IRequestHandler<AssignClientRequest, Result>
     {
         private readonly IWriteRepository<Supervisor> _writeSupervisor;
         private readonly IReadRepository<Supervisor> _readSupervisor;
@@ -34,29 +29,18 @@ namespace Crm.Supervisors.Commands
             _readClient = readClient;
         }
 
-        public async Task<Result> Execute(AssignClientRequest request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(AssignClientRequest request, CancellationToken cancellationToken)
         {
-            try
-            {
-                var supervisor = await GetSupervisorWithManager(request.SupervisorId, request.ManagerId, cancellationToken);
-                var client = await GetClientWithOrders(request.ClientId, cancellationToken);
-                supervisor.AssignClient(request.ManagerId, client);
-                return await SaveChangesAndReturnSuccess(supervisor, cancellationToken);
-            }
-            catch (NotFoundException ex)
-            {
-                return Result.NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return Result.Error(ex.Message);
-            }
+            var supervisor = await GetSupervisorWithManagers(request.SupervisorId, cancellationToken);
+            var client = await GetClientWithOrders(request.ClientId, cancellationToken);
+            supervisor.AssignClient(request.ManagerId, client);
+            return await SaveChangesAndReturnSuccess(supervisor, cancellationToken);
         }
 
-        private async Task<Supervisor> GetSupervisorWithManager(Guid supervisorId, Guid managerId, CancellationToken cancellationToken)
+        private async Task<Supervisor> GetSupervisorWithManagers(Guid supervisorId, CancellationToken cancellationToken)
         {
             var supervisor = await _readSupervisor.Execute(
-                new SupervisorWithManagerQuery(supervisorId, managerId),
+                new SupervisorWithManagersQuery(supervisorId),
                 cancellationToken);
             if (supervisor == null)
                 throw new NotFoundException(supervisorId.ToString(), nameof(Supervisor));

@@ -11,16 +11,9 @@ namespace Crm.Data.Context
     {
         internal DataContext (DbContextOptions<DataContext> options) : base(options) { }
 
-        public DataContext() : base() { }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-        }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer("Server=(LocalDB)\\MSSQLLocalDB;Initial Catalog=Crm;Integrated Security=True;");
         }
 
         public DbSet<Client> Clients => Set<Client>();
