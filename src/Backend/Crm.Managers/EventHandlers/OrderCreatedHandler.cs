@@ -1,5 +1,4 @@
 ﻿using Ardalis.GuardClauses;
-using Crm.Core.Clients;
 using Crm.Core.Clients.Events;
 using Crm.Core.Managers;
 using Crm.Managers.Queries;
@@ -12,16 +11,13 @@ namespace Crm.Managers.EventHandlers
     {
         private readonly IWriteRepository<Manager> _writeManager;
         private readonly IReadRepository<Manager> _readManager;
-        private readonly IReadRepository<Client> _readClient;
 
         public OrderCreatedHandler(
             IWriteRepository<Manager> writeManager,
-            IReadRepository<Manager> readManager,
-            IReadRepository<Client> readClient)
+            IReadRepository<Manager> readManager)
         {
             _writeManager = writeManager;
             _readManager = readManager;
-            _readClient = readClient;
         }
 
         public async Task Handle(OrderCreatedEvent notification, CancellationToken cancellationToken)

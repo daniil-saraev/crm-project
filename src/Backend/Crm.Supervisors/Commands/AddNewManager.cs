@@ -22,7 +22,7 @@ namespace Crm.Supervisors.Commands
         {
             _writeSupervisor = writeSupervisor;
             _readSupervisor = readSupervisor;
-        }
+        } 
 
         public async Task<Result> Handle(AddNewManagerRequest request, CancellationToken cancellationToken)
         {

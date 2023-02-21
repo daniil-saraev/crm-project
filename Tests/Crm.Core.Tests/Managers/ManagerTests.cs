@@ -16,8 +16,10 @@ namespace Crm.Core.Tests.Managers
                 .First();
             var client = manager.Clients.First();
             var orderInWork = client.OrdersInWork.First();
+
             // Act
-            var completedOrder = manager.CompleteOrder(orderInWork.Id, CompletedOrder.CompletionStatus.Fulfilled, "Fulfilled");
+            var completedOrder = manager.CompleteOrder(orderInWork.Id, client.Id, CompletedOrder.CompletionStatus.Fulfilled, "Fulfilled");
+
             // Assert 
             Assert.DoesNotContain(orderInWork, manager.OrdersInWork);
             Assert.DoesNotContain(orderInWork, client.OrdersInWork);
@@ -29,7 +31,7 @@ namespace Crm.Core.Tests.Managers
             Assert.Contains(completedOrder, client.CompletedOrders);
             Assert.Throws<NotFoundException>(() =>
             {
-                manager.CompleteOrder(orderInWork.Id, CompletedOrder.CompletionStatus.Fulfilled, "Fulfilled");
+                manager.CompleteOrder(orderInWork.Id, client.Id, CompletedOrder.CompletionStatus.Fulfilled, "Fulfilled");
             });
         }
 
@@ -44,8 +46,10 @@ namespace Crm.Core.Tests.Managers
                 .First();
             var client = manager.Clients.First();
             var createdOrder = client.CreatedOrders.First();
+
             // Act
             var orderInWork = manager.TakeOrder(createdOrder.Id, client.Id);
+
             // Assert
             Assert.DoesNotContain(createdOrder, client.CreatedOrders);
             Assert.Contains(orderInWork, manager.OrdersInWork);
@@ -67,8 +71,10 @@ namespace Crm.Core.Tests.Managers
                 .Include(manager => manager.OrdersInWork)
                 .First();
             var orderInWork = manager.OrdersInWork.First();
+
             // Act
             manager.SetOrderDescription(orderInWork.Id, "New description");
+
             // Assert
             Assert.True(orderInWork.Description == "New description");
             Assert.Throws<ArgumentException>(() =>
@@ -89,8 +95,10 @@ namespace Crm.Core.Tests.Managers
                 .Include(manager => manager.Clients)
                 .First();
             var client = manager.Clients.First();
+
             // Act
             manager.SetClientName(client.Id, "New name");
+
             // Assert
             Assert.True(client.Name == "New name");
             Assert.Throws<ArgumentException>(() =>
@@ -112,8 +120,10 @@ namespace Crm.Core.Tests.Managers
                 .First();
             var client = manager.Clients.First();
             var newContactInfo = new ContactInfo("jake@mail.com", "+71112223344");
+
             // Act
             manager.SetClientContactInfo(client.Id, newContactInfo.Email, newContactInfo.PhoneNumber);
+
             // Assert
             Assert.True(client.ContactInfo == newContactInfo);
             Assert.Throws<NotFoundException>(() =>

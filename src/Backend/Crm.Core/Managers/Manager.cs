@@ -53,9 +53,9 @@ namespace Crm.Core.Managers
                 order.AssignManager(Id);
                 return order;
             }));
-            var createdOrders = client.CreatedOrders.ToImmutableArray();
+            var createdOrders = client.CreatedOrders.Select(o => o.Id).ToImmutableArray();
             foreach (var order in createdOrders)
-                TakeOrder(order.Id, client.Id);
+                TakeOrder(order, client.Id);
         }
 
         internal Client GiveClient(Guid clientId)
@@ -80,10 +80,10 @@ namespace Crm.Core.Managers
             return orderInWork;
         }
 
-        public CompletedOrder CompleteOrder(Guid orderInWorkId, CompletionStatus status, string comment)
+        public CompletedOrder CompleteOrder(Guid orderInWorkId, Guid clientId, CompletionStatus status, string comment)
         {
             var orderInWork = FindOrderInWork(orderInWorkId);
-            var client = FindClient(orderInWork.ClientId);
+            var client = FindClient(clientId);
             var completedOrder = new CompletedOrder(
                 orderInWork.ClientId,
                 Id,
@@ -92,9 +92,9 @@ namespace Crm.Core.Managers
                 orderInWork.Description,
                 status,
                 comment);
-            _completedOrders.Add(completedOrder);
-            _ordersInWork.Remove(orderInWork);
             client.CompleteOrder(orderInWorkId, completedOrder);
+            _ordersInWork.Remove(orderInWork);
+            _completedOrders.Add(completedOrder);
             return completedOrder;
         }
 

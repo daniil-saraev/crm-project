@@ -11,7 +11,6 @@ namespace Crm.Clients
         {
             services.AddMediatR(config =>
             {
-                config.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ExceptionHandlerBehavior<,>));
                 config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
             });
         }

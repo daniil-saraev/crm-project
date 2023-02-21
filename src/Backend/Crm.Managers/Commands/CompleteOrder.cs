@@ -1,6 +1,7 @@
 ﻿using Ardalis.GuardClauses;
 using Ardalis.Result;
 using Crm.Core.Managers;
+using Crm.Core.Orders;
 using Crm.Managers.Queries;
 using Crm.Shared.Repository;
 using MediatR;
@@ -13,9 +14,9 @@ namespace Crm.Managers.Commands
     Guid ClientId,
     Guid OrderInWorkId,
     CompletionStatus Status,
-    string Comment) : IRequest<Result>;
+    string Comment) : IRequest<Result<Guid>>;
 
-    internal class CompleteOrderHandler : IRequestHandler<CompleteOrderRequest, Result>
+    internal class CompleteOrderHandler : IRequestHandler<CompleteOrderRequest, Result<Guid>>
     {
         private readonly IReadRepository<Manager> _readManager;
         private readonly IWriteRepository<Manager> _writeManager;
@@ -26,11 +27,11 @@ namespace Crm.Managers.Commands
             _writeManager = writeManager;
         }
 
-        public async Task<Result> Handle(CompleteOrderRequest request, CancellationToken cancellationToken)
+        public async Task<Result<Guid>> Handle(CompleteOrderRequest request, CancellationToken cancellationToken)
         {
             var manager = await GetManagerWithClientAndOrdersInWork(request.ManagerId, request.ClientId, request.OrderInWorkId, cancellationToken);
-            manager.CompleteOrder(request.OrderInWorkId, request.Status, request.Comment);
-            return await SaveChangesAndReturnSuccess(manager, cancellationToken);
+            var order = manager.CompleteOrder(request.OrderInWorkId, request.ClientId, request.Status, request.Comment);
+            return await SaveChangesAndReturnSuccess(manager, order, cancellationToken);
         }
 
         private async Task<Manager> GetManagerWithClientAndOrdersInWork(Guid managerId, Guid clientId, Guid orderInWorkId, CancellationToken cancellationToken)
@@ -43,11 +44,11 @@ namespace Crm.Managers.Commands
             return manager;
         }
 
-        private async Task<Result> SaveChangesAndReturnSuccess(Manager manager, CancellationToken cancellationToken)
+        private async Task<Result<Guid>> SaveChangesAndReturnSuccess(Manager manager, CompletedOrder order, CancellationToken cancellationToken)
         {
             await _writeManager.Update(manager, cancellationToken);
             await _writeManager.SaveChanges(cancellationToken);
-            return Result.Success();
+            return Result.Success(order.Id);
         }
     }
 }

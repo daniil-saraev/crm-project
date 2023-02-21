@@ -11,9 +11,9 @@ namespace Crm.Shared.Events
             _mediator = mediator;
         }
 
-        public async Task Publish(DomainEvent domainEvent)
+        public async Task Publish(DomainEvent domainEvent, CancellationToken cancellationToken)
         {
-            await _mediator.Publish(domainEvent).ConfigureAwait(false);
+            await _mediator.Publish(domainEvent, cancellationToken).ConfigureAwait(false);
         }
     }
 }

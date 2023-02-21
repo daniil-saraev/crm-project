@@ -2,6 +2,6 @@
 {
     public interface IEventBus
     {
-        Task Publish(DomainEvent domainEvent);
+        Task Publish(DomainEvent domainEvent, CancellationToken cancellationToken);
     }
 }

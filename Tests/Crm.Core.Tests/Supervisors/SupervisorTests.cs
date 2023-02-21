@@ -16,6 +16,7 @@ namespace Crm.Core.Tests.Supervisors
 
             // Act
             supervisor.AddNewManager(id);
+
             // Assert
             Assert.NotNull(supervisor.Managers.FirstOrDefault(manager => manager.Id == id));
             Assert.Throws<InvalidOperationException>(() =>
@@ -39,8 +40,10 @@ namespace Crm.Core.Tests.Supervisors
             var toSupervisor = supervisors[1];
             var manager = fromSupervisor.Managers.First();
             var otherManager = toSupervisor.Managers.First();
+
             // Act
             fromSupervisor.TransferManager(manager.Id, toSupervisor);
+
             // Assert
             Assert.DoesNotContain(manager, fromSupervisor.Managers);
             Assert.Contains(manager, toSupervisor.Managers);
@@ -62,8 +65,10 @@ namespace Crm.Core.Tests.Supervisors
             var client = new Client("Test", new ContactInfo("test@mail.com", "+71112223344"));
             var order = client.PlaceOrder("New order");
             var alreadyAssignedClient = manager.Clients.First();
+
             // Act
             supervisor.AssignClient(manager.Id, client);
+
             // Assert
             Assert.True(client.ManagerId == manager.Id);
             Assert.Contains(client, manager.Clients);
@@ -91,8 +96,10 @@ namespace Crm.Core.Tests.Supervisors
             var toManager = supervisor.Managers.ElementAt(1);
             var client = fromManager.Clients.First();
             var otherClient = toManager.Clients.First();
+
             // Act
             supervisor.TransferClient(fromManager.Id, toManager.Id, client.Id);
+
             // Assert
             Assert.True(client.ManagerId == toManager.Id);
             Assert.DoesNotContain(client, fromManager.Clients);

@@ -13,9 +13,9 @@ namespace Crm.Clients.Commands
         string Name,
         string Email,
         string PhoneNumber,
-        string Description) : IRequest<Result>;
+        string Description) : IRequest<Result<Guid>>;
 
-    internal class CreateOrderHandler : IRequestHandler<CreateOrderRequest, Result>
+    internal class CreateOrderHandler : IRequestHandler<CreateOrderRequest, Result<Guid>>
     {
         private readonly IReadRepository<Client> _readRepository;
         private readonly IWriteRepository<Client> _writeRepository;
@@ -28,15 +28,15 @@ namespace Crm.Clients.Commands
             _eventBus = eventBus;
         }
 
-        public async Task<Result> Handle(CreateOrderRequest request, CancellationToken cancellationToken)
+        public async Task<Result<Guid>> Handle(CreateOrderRequest request, CancellationToken cancellationToken)
         {
             var client = await GetClientByPhoneNumber(request.PhoneNumber, cancellationToken);
             client ??= new Client(request.Name, new ContactInfo(request.Email, request.PhoneNumber));
             var order = client.PlaceOrder(request.Description);
             await _writeRepository.Update(client, cancellationToken);
             await _writeRepository.SaveChanges(cancellationToken);
-            await _eventBus.Publish(new OrderCreatedEvent(client.Id, order.Id, client.ManagerId));
-            return Result.Success();
+            await _eventBus.Publish(new OrderCreatedEvent(client.Id, order.Id, client.ManagerId), cancellationToken);
+            return Result.Success(order.Id);
         }
 
         private async Task<Client?> GetClientByPhoneNumber(string phoneNumber, CancellationToken cancellationToken)
