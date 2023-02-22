@@ -3,7 +3,7 @@ using Crm.Shared.Repository;
 using Microsoft.EntityFrameworkCore;
 using Z.EntityFramework.Plus;
 
-namespace Crm.Managers.Queries
+namespace Crm.Managers.Commands.Shared
 {
     internal record ManagerWithClientQuery(
         Guid ManagerId,

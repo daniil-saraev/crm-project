@@ -2,8 +2,8 @@
 using Ardalis.Result;
 using Crm.Core.Supervisors;
 using Crm.Shared.Repository;
-using Crm.Supervisors.Queries;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Crm.Supervisors.Commands
 {
@@ -14,7 +14,7 @@ namespace Crm.Supervisors.Commands
     internal class AddNewManagerHandler : IRequestHandler<AddNewManagerRequest, Result>
     {
         private readonly IWriteRepository<Supervisor> _writeSupervisor;
-        private readonly IReadRepository<Supervisor> _readSupervisor;
+        private readonly IReadRepository<Supervisor> _readSupervisor; 
 
         public AddNewManagerHandler(
             IWriteRepository<Supervisor> writeSupervisor,
@@ -46,6 +46,27 @@ namespace Crm.Supervisors.Commands
             await _writeSupervisor.Update(supervisor, cancellationToken);
             await _writeSupervisor.SaveChanges(cancellationToken);
             return Result.Success();
+        }
+    }
+
+    file record SupervisorWithManagersQuery(
+        Guid SupervisorId) : ISingleQuery<Supervisor>;
+
+    file class SupervisorWithManagersHandler : ISingleQueryHandler<SupervisorWithManagersQuery, Supervisor>
+    {
+        private readonly DbContext _dbContext;
+
+        public SupervisorWithManagersHandler(DbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        public async Task<Supervisor?> Handle(SupervisorWithManagersQuery request, CancellationToken cancellationToken)
+        {
+            return await _dbContext.Set<Supervisor>()
+                .Where(supervisor => supervisor.Id == request.SupervisorId)
+                .Include(supervisor => supervisor.Managers)
+                .SingleOrDefaultAsync(cancellationToken);
         }
     }
 }

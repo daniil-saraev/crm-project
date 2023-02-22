@@ -7,7 +7,7 @@ namespace Crm.Shared.Repository
     {
     }
 
-    public interface ICollectionQuery<out TCollection> : IRequest<TCollection> where TCollection : IEnumerable<Entity>
+    public interface ICollectionQuery<out TEntity> : IRequest<IEnumerable<TEntity>> where TEntity : Entity
     {
     }
 }

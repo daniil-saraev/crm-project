@@ -6,6 +6,6 @@ namespace Crm.Shared.Repository
     {
         Task<TEntity?> Execute(ISingleQuery<TEntity> query, CancellationToken cancellationToken);
 
-        Task<IEnumerable<TEntity>> Execute(ICollectionQuery<IEnumerable<TEntity>> query, CancellationToken cancellationToken);
+        Task<IEnumerable<TEntity>> Execute(ICollectionQuery<TEntity> query, CancellationToken cancellationToken);
     }
 }

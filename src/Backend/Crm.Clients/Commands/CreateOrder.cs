@@ -1,11 +1,11 @@
 ﻿using Ardalis.Result;
-using Crm.Clients.Queries;
 using Crm.Core.Clients;
 using Crm.Core.Clients.Events;
 using Crm.Shared.Events;
 using Crm.Shared.Models;
 using Crm.Shared.Repository;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Crm.Clients.Commands
 {
@@ -44,6 +44,26 @@ namespace Crm.Clients.Commands
             return await _readRepository.Execute(
                     new ClientByPhoneNumberQuery(phoneNumber),
                     cancellationToken);
+        }
+    }
+
+    file record ClientByPhoneNumberQuery(
+        string PhoneNumber) : ISingleQuery<Client>;
+
+    file class ClientByPhoneNumberHandler : ISingleQueryHandler<ClientByPhoneNumberQuery, Client>
+    {
+        private readonly DbContext _dataContext;
+
+        public ClientByPhoneNumberHandler(DbContext dataContext)
+        {
+            _dataContext = dataContext;
+        }
+
+        public async Task<Client?> Handle(ClientByPhoneNumberQuery request, CancellationToken cancellationToken)
+        {
+            return await _dataContext.Set<Client>().FirstOrDefaultAsync(
+                client => client.ContactInfo.PhoneNumber == request.PhoneNumber,
+                cancellationToken);
         }
     }
 }

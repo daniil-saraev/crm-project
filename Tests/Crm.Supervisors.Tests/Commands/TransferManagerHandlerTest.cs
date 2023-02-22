@@ -4,7 +4,6 @@ using Crm.Core.Supervisors;
 using Crm.Shared.ExceptionHandler;
 using Crm.Shared.Repository;
 using Crm.Supervisors.Commands;
-using Crm.Supervisors.Queries;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using Tests.Shared.Context;
@@ -73,8 +72,8 @@ namespace Crm.Supervisors.Tests.Commands
             (Supervisor fromSupervisor, Supervisor toSupervisor, Manager manager)
                 = Setup();
             var request = new TransferManagerRequest(fromSupervisor.Id, toSupervisor.Id, manager.Id);
-            _readRepository.Setup(r => r.Execute(It.IsAny<SupervisorWithManagersQuery>(), default))
-                .Returns(Task.FromResult<Supervisor?>(null));
+            _readRepository.Setup(r => r.Execute(It.IsAny<ICollectionQuery<Supervisor>>(), default))
+                .Returns(Task.FromResult<IEnumerable<Supervisor>>(new List<Supervisor>()));
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -113,10 +112,8 @@ namespace Crm.Supervisors.Tests.Commands
             var toSupervisor = supervisors[1];
             var manager = fromSupervisor.Managers.First();
 
-            _readRepository.Setup(r => r.Execute(It.IsAny<SupervisorByIdQuery>(), default))
-                .ReturnsAsync(toSupervisor);
-            _readRepository.Setup(r => r.Execute(It.IsAny<SupervisorWithManagersQuery>(), default))
-                .ReturnsAsync(fromSupervisor);
+            _readRepository.Setup(r => r.Execute(It.IsAny<ICollectionQuery<Supervisor>>(), default))
+                .ReturnsAsync(new[] {fromSupervisor, toSupervisor});
 
             return (fromSupervisor, toSupervisor, manager);
         }

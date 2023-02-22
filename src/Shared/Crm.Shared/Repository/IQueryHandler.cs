@@ -9,9 +9,9 @@ namespace Crm.Shared.Repository
     {
     }
 
-    public interface ICollectionQueryHandler<in TCollectionQuery, TCollection> : IRequestHandler<TCollectionQuery, TCollection>
-        where TCollectionQuery : ICollectionQuery<TCollection>
-        where TCollection : IEnumerable<Entity>
+    public interface ICollectionQueryHandler<in TCollectionQuery, TEntity> : IRequestHandler<TCollectionQuery, IEnumerable<TEntity>>
+        where TCollectionQuery : ICollectionQuery<TEntity>
+        where TEntity : Entity
     {
     }
 }

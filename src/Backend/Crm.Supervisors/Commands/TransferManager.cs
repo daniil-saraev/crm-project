@@ -2,8 +2,9 @@
 using Ardalis.Result;
 using Crm.Core.Supervisors;
 using Crm.Shared.Repository;
-using Crm.Supervisors.Queries;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Z.EntityFramework.Plus;
 
 namespace Crm.Supervisors.Commands
 {
@@ -27,8 +28,8 @@ namespace Crm.Supervisors.Commands
 
         public async Task<Result> Handle(TransferManagerRequest request, CancellationToken cancellationToken)
         {
-            var fromSupervisor = await GetSupervisorWithManagers(request.FromSupervisorId, cancellationToken);
-            var toSupervisor = await GetSupervisor(request.ToSupervisorId, cancellationToken);
+            (Supervisor fromSupervisor, Supervisor toSupervisor)
+                = await GetSupervisorsWithManager(request.FromSupervisorId, request.ToSupervisorId, request.ManagerId, cancellationToken);
             fromSupervisor.TransferManager(request.ManagerId, toSupervisor);
             await _writeSupervisor.Update(fromSupervisor, cancellationToken);
             await _writeSupervisor.Update(toSupervisor, cancellationToken);
@@ -36,24 +37,45 @@ namespace Crm.Supervisors.Commands
             return Result.Success();
         }
 
-        private async Task<Supervisor> GetSupervisor(Guid id, CancellationToken cancellationToken)
+        private async Task<(Supervisor fromSupervisor, Supervisor toSupervisor)> GetSupervisorsWithManager(
+            Guid fromSupervisorId, Guid toSupervisorId, Guid managerId, CancellationToken cancellationToken)
         {
-            var supervisor = await _readSupervisor.Execute(
-                new SupervisorByIdQuery(id),
+            var supervisors = await _readSupervisor.Execute(
+                new SupervisorsWithManagerQuery(fromSupervisorId, toSupervisorId, managerId),
                 cancellationToken);
-            if (supervisor == null)
-                throw new NotFoundException(id.ToString(), nameof(Supervisor));
-            return supervisor;
+
+            var fromSupervisor = supervisors.FirstOrDefault(s => s.Id == fromSupervisorId);
+            if (fromSupervisor == null)
+                throw new NotFoundException(fromSupervisorId.ToString(), nameof(Supervisor));
+
+            var toSupervisor = supervisors.FirstOrDefault(s => s.Id == toSupervisorId);
+            if (toSupervisor == null)
+                throw new NotFoundException(toSupervisorId.ToString(), nameof(Supervisor));
+
+            return (fromSupervisor, toSupervisor);
+        }
+    }
+
+    file record SupervisorsWithManagerQuery(
+        Guid FromSupervisorId,
+        Guid ToSupervisorId,
+        Guid ManagerId) : ICollectionQuery<Supervisor>;
+
+    file class SupervisorsWithManagerHandler : ICollectionQueryHandler<SupervisorsWithManagerQuery, Supervisor>
+    {
+        private readonly DbContext _dbContext;
+
+        public SupervisorsWithManagerHandler(DbContext dbContext)
+        {
+            _dbContext = dbContext;
         }
 
-        private async Task<Supervisor> GetSupervisorWithManagers(Guid supervisorId, CancellationToken cancellationToken)
+        public async Task<IEnumerable<Supervisor>> Handle(SupervisorsWithManagerQuery request, CancellationToken cancellationToken)
         {
-            var supervisor = await _readSupervisor.Execute(
-                new SupervisorWithManagersQuery(supervisorId),
-                cancellationToken);
-            if (supervisor == null)
-                throw new NotFoundException(supervisorId.ToString(), nameof(Supervisor));
-            return supervisor;
+            return await _dbContext.Set<Supervisor>()
+                .Where(supervisor => supervisor.Id == request.FromSupervisorId || supervisor.Id == request.ToSupervisorId)
+                .IncludeFilter(supervisor => supervisor.Managers.Where(manager => manager.Id == request.ManagerId))
+                .ToListAsync(cancellationToken);
         }
     }
 }

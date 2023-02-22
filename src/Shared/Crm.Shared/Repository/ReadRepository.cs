@@ -17,7 +17,7 @@ namespace Crm.Shared.Repository
             return await _mediator.Send(query, cancellationToken);
         }
 
-        public async Task<IEnumerable<TEntity>> Execute(ICollectionQuery<IEnumerable<TEntity>> query, CancellationToken cancellationToken)
+        public async Task<IEnumerable<TEntity>> Execute(ICollectionQuery<TEntity> query, CancellationToken cancellationToken)
         {
             return await _mediator.Send(query, cancellationToken);
         }

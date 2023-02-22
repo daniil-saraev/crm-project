@@ -2,8 +2,9 @@
 using Ardalis.Result;
 using Crm.Core.Supervisors;
 using Crm.Shared.Repository;
-using Crm.Supervisors.Queries;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Z.EntityFramework.Plus;
 
 namespace Crm.Supervisors.Commands
 {
@@ -28,7 +29,7 @@ namespace Crm.Supervisors.Commands
 
         public async Task<Result> Handle(TransferClientRequest request, CancellationToken cancellationToken)
         {
-            var supervisor = await GetSupervisorWithManagers(
+            var supervisor = await GetSupervisorWithManagersAndClient(
                     request.SupervisorId,
                     request.FromManagerId,
                     request.ToManagerId,
@@ -38,7 +39,7 @@ namespace Crm.Supervisors.Commands
             return await SaveChangesAndReturnSuccess(supervisor, cancellationToken);
         }
 
-        private async Task<Supervisor> GetSupervisorWithManagers(
+        private async Task<Supervisor> GetSupervisorWithManagersAndClient(
             Guid supervisorId, 
             Guid fromManagerId, 
             Guid toManagerId, 
@@ -58,6 +59,46 @@ namespace Crm.Supervisors.Commands
             await _writeSupervisor.Update(supervisor, cancellationToken);
             await _writeSupervisor.SaveChanges(cancellationToken);
             return Result.Success();
+        }
+    }
+
+    file record SupervisorWithManagersAndClientQuery(
+        Guid SupervisorId,
+        Guid FromManagerId,
+        Guid ToManagerId,
+        Guid ClientId) : ISingleQuery<Supervisor>;
+
+    file class SupervisorWithManagersAndClientHandler : ISingleQueryHandler<SupervisorWithManagersAndClientQuery, Supervisor>
+    {
+        private readonly DbContext _dbContext;
+
+        public SupervisorWithManagersAndClientHandler(DbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        public async Task<Supervisor?> Handle(SupervisorWithManagersAndClientQuery request, CancellationToken cancellationToken)
+        {
+            return await _dbContext.Set<Supervisor>()
+                .Where(supervisor => supervisor.Id == request.SupervisorId)
+                .IncludeFilter(supervisor => supervisor.Managers
+                    .Where(manager => manager.Id == request.FromManagerId || manager.Id == request.ToManagerId))
+
+                .IncludeFilter(supervisor => supervisor.Managers
+                    .Where(manager => manager.Id == request.FromManagerId)
+                        .Select(manager => manager.Clients.Where(client => client.Id == request.ClientId)))
+
+                .IncludeFilter(supervisor => supervisor.Managers
+                    .Where(manager => manager.Id == request.FromManagerId)
+                        .Select(manager => manager.Clients.Where(client => client.Id == request.ClientId)
+                            .Select(client => client.OrdersInWork.AsEnumerable())))
+
+                .IncludeFilter(supervisor => supervisor.Managers
+                    .Where(manager => manager.Id == request.FromManagerId)
+                        .Select(manager => manager.Clients.Where(client => client.Id == request.ClientId)
+                            .Select(client => client.CreatedOrders.AsEnumerable())))
+
+                .SingleOrDefaultAsync(cancellationToken);
         }
     }
 }

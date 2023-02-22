@@ -1,9 +1,11 @@
 ﻿using Ardalis.GuardClauses;
 using Ardalis.Result;
 using Crm.Core.Managers;
-using Crm.Managers.Queries;
+using Crm.Managers.Commands.Shared;
 using Crm.Shared.Repository;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Z.EntityFramework.Plus;
 
 namespace Crm.Managers.Commands
 {
