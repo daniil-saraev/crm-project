@@ -5,7 +5,7 @@ using Crm.Core.Supervisors;
 using Crm.Shared.Models;
 using static Crm.Core.Orders.CompletedOrder;
 
-namespace Tests.Shared.Context
+namespace Tests.Commands.Shared.Context
 {
     internal class SampleData
     {

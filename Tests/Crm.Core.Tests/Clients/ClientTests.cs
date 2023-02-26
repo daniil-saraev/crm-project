@@ -1,4 +1,4 @@
-﻿namespace Crm.Core.Tests.Clients
+﻿namespace Tests.Commands.Core.Clients
 {
     public class ClientTests
     {

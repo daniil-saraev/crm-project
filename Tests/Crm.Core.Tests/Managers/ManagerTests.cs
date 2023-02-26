@@ -1,6 +1,7 @@
 ﻿using Ardalis.GuardClauses;
+using Tests.Commands.Shared.Context;
 
-namespace Crm.Core.Tests.Managers
+namespace Tests.Commands.Core.Managers
 {
     public class ManagerTests
     {
@@ -24,7 +25,7 @@ namespace Crm.Core.Tests.Managers
             Assert.DoesNotContain(orderInWork, manager.OrdersInWork);
             Assert.DoesNotContain(orderInWork, client.OrdersInWork);
             Assert.Contains(completedOrder, manager.CompletedOrders);
-            Assert.True(completedOrder.ClientId == client.Id 
+            Assert.True(completedOrder.ClientId == client.Id
                 && completedOrder.Created == orderInWork.Created
                 && completedOrder.Assigned == orderInWork.Assigned
                 && completedOrder.Description == orderInWork.Description);

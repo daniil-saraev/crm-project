@@ -5,9 +5,9 @@ using Crm.Shared.Repository;
 using Crm.Supervisors.Commands;
 using Microsoft.EntityFrameworkCore;
 using Moq;
-using Tests.Shared.Context;
+using Tests.Commands.Shared.Context;
 
-namespace Crm.Supervisors.Tests.Commands
+namespace Tests.Commands.Supervisors.Commands
 {
     public class AddNewManagerHandlerTest
     {
@@ -37,7 +37,7 @@ namespace Crm.Supervisors.Tests.Commands
             // Assert
             Assert.True(result.IsSuccess);
             Assert.True(result.Status == ResultStatus.Ok);
-            _writeRepository.Verify(r => r.Update(It.Is<Supervisor>(s => s.Id == supervisor.Id 
+            _writeRepository.Verify(r => r.Update(It.Is<Supervisor>(s => s.Id == supervisor.Id
                 && s.Managers.Any(m => m.Id == managerAccountId)),
                 It.IsAny<CancellationToken>()));
             _writeRepository.Verify(r => r.SaveChanges(It.IsAny<CancellationToken>()));

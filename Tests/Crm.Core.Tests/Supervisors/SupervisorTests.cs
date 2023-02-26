@@ -1,6 +1,7 @@
 ﻿using Ardalis.GuardClauses;
+using Tests.Commands.Shared.Context;
 
-namespace Crm.Core.Tests.Supervisors
+namespace Tests.Commands.Core.Supervisors
 {
     public class SupervisorTests
     {

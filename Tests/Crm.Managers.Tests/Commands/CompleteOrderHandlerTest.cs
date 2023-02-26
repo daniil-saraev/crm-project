@@ -7,10 +7,10 @@ using Crm.Shared.ExceptionHandler;
 using Crm.Shared.Repository;
 using Microsoft.EntityFrameworkCore;
 using Moq;
-using Tests.Shared.Context;
+using Tests.Commands.Shared.Context;
 using static Crm.Core.Orders.CompletedOrder;
 
-namespace Crm.Managers.Tests.Commands
+namespace Tests.Commands.Managers.Commands
 {
     public class CompleteOrderHandlerTest
     {

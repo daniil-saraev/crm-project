@@ -6,9 +6,9 @@ using Crm.Managers.EventHandlers;
 using Crm.Shared.Repository;
 using Microsoft.EntityFrameworkCore;
 using Moq;
-using Tests.Shared.Context;
+using Tests.Commands.Shared.Context;
 
-namespace Crm.Managers.Tests.EventHandlers
+namespace Tests.Commands.Managers.EventHandlers
 {
     public class OrderCreatedHandlerTest
     {

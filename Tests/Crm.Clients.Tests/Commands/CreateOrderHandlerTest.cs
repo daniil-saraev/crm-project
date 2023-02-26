@@ -1,17 +1,17 @@
 ﻿using Ardalis.Result;
 using Crm.Core.Clients.Events;
-using Crm.Shared.Events;
 using Crm.Shared.ExceptionHandler;
+using Crm.Shared.Messages;
 using Crm.Shared.Models;
 using Crm.Shared.Repository;
 
-namespace Crm.Clients.Tests.Commands
+namespace Tests.Commands.Clients.Commands
 {
     public class CreateOrderHandlerTest
     {
         private readonly Mock<IReadRepository<Client>> _readRepository = new();
         private readonly Mock<IWriteRepository<Client>> _writeRepository = new();
-        private readonly Mock<IEventBus> _eventBus = new();
+        private readonly Mock<IMessageBus> _eventBus = new();
         private readonly ExceptionHandlerBehavior<CreateOrderRequest, Guid> _exceptionHandler;
         private readonly CreateOrderHandler _commandHandler;
 
@@ -37,10 +37,10 @@ namespace Crm.Clients.Tests.Commands
             Assert.True(result.IsSuccess);
             Assert.True(result.Status == Ardalis.Result.ResultStatus.Ok);
             Assert.True(result.Value != Guid.Empty);
-            _writeRepository.Verify(r => r.Update(It.Is<Client>(c => c.Id == client.Id && c.CreatedOrders.Single().Id == result.Value), 
+            _writeRepository.Verify(r => r.Update(It.Is<Client>(c => c.Id == client.Id && c.CreatedOrders.Single().Id == result.Value),
                 It.IsAny<CancellationToken>()));
             _writeRepository.Verify(r => r.SaveChanges(It.IsAny<CancellationToken>()));
-            _eventBus.Verify(e => e.Publish(It.Is<OrderCreatedEvent>(@event => @event.OrderId == result.Value && @event.ClientId == client.Id),
+            _eventBus.Verify(e => e.Publish(It.Is<NewClientPlacedOrderEvent>(@event => @event.OrderId == result.Value && @event.ClientId == client.Id),
                 It.IsAny<CancellationToken>()));
         }
 
@@ -62,7 +62,7 @@ namespace Crm.Clients.Tests.Commands
             _writeRepository.Verify(r => r.Update(It.Is<Client>(c => c.CreatedOrders.Single().Id == result.Value),
                 It.IsAny<CancellationToken>()));
             _writeRepository.Verify(r => r.SaveChanges(It.IsAny<CancellationToken>()));
-            _eventBus.Verify(e => e.Publish(It.Is<OrderCreatedEvent>(@event => @event.OrderId == result.Value && @event.ClientId != Guid.Empty),
+            _eventBus.Verify(e => e.Publish(It.Is<NewClientPlacedOrderEvent>(@event => @event.OrderId == result.Value && @event.ClientId != Guid.Empty),
                 It.IsAny<CancellationToken>()));
         }
 

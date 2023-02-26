@@ -6,9 +6,9 @@ using Crm.Shared.Repository;
 using Crm.Supervisors.Commands;
 using Microsoft.EntityFrameworkCore;
 using Moq;
-using Tests.Shared.Context;
+using Tests.Commands.Shared.Context;
 
-namespace Crm.Supervisors.Tests.Commands
+namespace Tests.Commands.Supervisors.Commands
 {
     public class TransferManagerHandlerTest
     {
@@ -113,7 +113,7 @@ namespace Crm.Supervisors.Tests.Commands
             var manager = fromSupervisor.Managers.First();
 
             _readRepository.Setup(r => r.Execute(It.IsAny<ICollectionQuery<Supervisor>>(), default))
-                .ReturnsAsync(new[] {fromSupervisor, toSupervisor});
+                .ReturnsAsync(new[] { fromSupervisor, toSupervisor });
 
             return (fromSupervisor, toSupervisor, manager);
         }

@@ -6,9 +6,9 @@ using Crm.Shared.Repository;
 using Crm.Supervisors.Commands;
 using Microsoft.EntityFrameworkCore;
 using Moq;
-using Tests.Shared.Context;
+using Tests.Commands.Shared.Context;
 
-namespace Crm.Supervisors.Tests.Commands
+namespace Tests.Commands.Supervisors.Commands
 {
     public class TransferClientHandlerTest
     {
@@ -28,7 +28,7 @@ namespace Crm.Supervisors.Tests.Commands
         public async Task HandleSuccessfulTest()
         {
             // Arrange
-            (Supervisor supervisor, Manager fromManager, Manager toManager, Client client) 
+            (Supervisor supervisor, Manager fromManager, Manager toManager, Client client)
                 = Setup();
             var request = new TransferClientRequest(supervisor.Id, fromManager.Id, toManager.Id, client.Id);
 

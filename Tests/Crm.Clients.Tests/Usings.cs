@@ -1,4 +1,4 @@
 global using Xunit;
 global using Moq;
-global using Crm.Clients.Commands;
-global using Crm.Core.Clients;
+global using Crm.Commands.Clients.Commands;
+global using Crm.Commands.Core.Clients;

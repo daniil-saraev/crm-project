@@ -1,7 +1,8 @@
 ﻿using Crm.Data.Context;
 using Microsoft.EntityFrameworkCore;
+using Tests.Shared.Context;
 
-namespace Tests.Shared.Context
+namespace Tests.Commands.Shared.Context
 {
     public static class DbContextFactory
     {

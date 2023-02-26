@@ -3,13 +3,13 @@ using Crm.Managers.Commands;
 using Crm.Shared.ExceptionHandler;
 using Crm.Shared.Repository;
 using Microsoft.EntityFrameworkCore;
-using Tests.Shared.Context;
 using Moq;
 using Ardalis.Result;
 using Crm.Core.Clients;
 using Crm.Shared.Models;
+using Tests.Commands.Shared.Context;
 
-namespace Crm.Managers.Tests.Commands
+namespace Tests.Commands.Managers.Commands
 {
     public class EditClientContactInfoHandlerTest
     {
@@ -39,7 +39,7 @@ namespace Crm.Managers.Tests.Commands
             // Assert
             Assert.True(result.IsSuccess);
             Assert.True(result.Status == ResultStatus.Ok);
-            _writeRepository.Verify(r => r.Update(It.Is<Manager>(m => m.Id == manager.Id 
+            _writeRepository.Verify(r => r.Update(It.Is<Manager>(m => m.Id == manager.Id
                 && m.Clients.First(c => c.Id == client.Id).ContactInfo == newContactInfo),
                 It.IsAny<CancellationToken>()));
             _writeRepository.Verify(r => r.SaveChanges(It.IsAny<CancellationToken>()));
