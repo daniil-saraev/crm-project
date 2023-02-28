@@ -1,12 +1,13 @@
 ﻿using Crm.Commands.Core.Supervisors;
 using Crm.Commands.Supervisors.Commands;
 using Crm.Shared.Repository;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Z.EntityFramework.Plus;
 
 namespace Crm.Commands.Data.QueryHandlers.Supervisors
 {
-    internal class SupervisorWithManagerHandler : ISingleQueryHandler<SupervisorWithManagerQuery, Supervisor>
+    internal class SupervisorWithManagerHandler : IRequestHandler<SupervisorWithManagerQuery, Supervisor?>
     {
         private readonly DbContext _dbContext;
 

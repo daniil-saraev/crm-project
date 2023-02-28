@@ -4,7 +4,7 @@ using Crm.Commands.Core.Managers;
 using Crm.Messages.Managers;
 using Crm.Shared.Messages;
 using Crm.Shared.Repository;
-using MassTransit;
+using MediatR;
 using static Crm.Commands.Core.Orders.CompletedOrder;
 
 namespace Crm.Commands.Managers.Commands
@@ -14,14 +14,14 @@ namespace Crm.Commands.Managers.Commands
     Guid ClientId,
     Guid OrderInWorkId,
     CompletionStatus Status,
-    string Comment) : ICommand;
+    string Comment) : IRequest<Result<Guid>>;
 
     public record ManagerWithClientAndOrdersInWorkQuery(
     Guid ManagerId,
     Guid ClientId,
     Guid OrderInWorkId) : ISingleQuery<Manager>;
 
-    internal class CompleteOrderHandler : IConsumer<CompleteOrderCommand>
+    internal class CompleteOrderHandler : IRequestHandler<CompleteOrderCommand, Result<Guid>>
     {
         private readonly IReadRepository<Manager> _readManager;
         private readonly IWriteRepository<Manager> _writeManager;
@@ -34,12 +34,7 @@ namespace Crm.Commands.Managers.Commands
             _eventBus = eventBus;
         }
 
-        public async Task Consume(ConsumeContext<CompleteOrderCommand> context)
-        {
-            await Handle(context.Message, context.CancellationToken);
-        }
-
-        private async Task<Result<Guid>> Handle(CompleteOrderCommand request, CancellationToken cancellationToken)
+        public async Task<Result<Guid>> Handle(CompleteOrderCommand request, CancellationToken cancellationToken)
         {
             var manager = await GetManagerWithClientAndOrdersInWork(request.ManagerId, request.ClientId, request.OrderInWorkId, cancellationToken);
             var order = manager.CompleteOrder(request.OrderInWorkId, request.ClientId, request.Status, request.Comment);

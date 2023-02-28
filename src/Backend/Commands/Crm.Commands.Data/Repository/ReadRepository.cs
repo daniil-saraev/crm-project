@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Crm.Commands.Data.Repository
 {
-    internal class ReadRepository<TEntity> : IReadRepository<TEntity> where TEntity : Entity
+    internal class ReadRepository<TEntity> : IReadRepository<TEntity> where TEntity : Entity, IAggregateRoot
     {
         private readonly IMediator _mediator;
 

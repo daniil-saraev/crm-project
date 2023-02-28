@@ -1,12 +1,13 @@
 ﻿using Crm.Commands.Core.Managers;
 using Crm.Commands.Managers.EventHandlers;
 using Crm.Shared.Repository;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Z.EntityFramework.Plus;
 
 namespace Crm.Commands.Data.QueryHandlers.Managers
 {
-    internal class ManagerWithClientWithCreatedOrdersHandler : ISingleQueryHandler<ManagerWithClientWithCreatedOrdersQuery, Manager>
+    internal class ManagerWithClientWithCreatedOrdersHandler : IRequestHandler<ManagerWithClientWithCreatedOrdersQuery, Manager?>
     {
         private readonly DbContext _context;
 

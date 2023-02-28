@@ -36,10 +36,10 @@ namespace Crm.Commands.Managers.EventHandlers
         private async Task Handle(ExistingClientPlacedOrderEvent @event, CancellationToken cancellationToken)
         {
             var manager = await GetManager(@event.ManagerId, @event.ClientId, cancellationToken);
-            manager.TakeOrder(@event.CreatedOrderId, @event.ClientId);
+            var order = manager.TakeOrder(@event.CreatedOrderId, @event.ClientId);
             await _writeManager.Update(manager, cancellationToken);
             await _writeManager.SaveChanges(cancellationToken);
-            await _eventBus.Publish(new NewOrderAssignedEvent(manager.Id, @event.CreatedOrderId), cancellationToken);
+            await _eventBus.Publish(new NewOrderAssignedEvent(manager.Id, order.Id), cancellationToken);
         }
 
         private async Task<Manager> GetManager(Guid managerId, Guid clientId, CancellationToken cancellationToken)

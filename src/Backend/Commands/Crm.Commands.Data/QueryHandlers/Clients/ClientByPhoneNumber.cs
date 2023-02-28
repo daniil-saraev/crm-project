@@ -1,11 +1,12 @@
 ﻿using Crm.Commands.Clients.Commands;
 using Crm.Commands.Core.Clients;
 using Crm.Shared.Repository;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Crm.Commands.Data.QueryHandlers.Clients
 {
-    internal class ClientByPhoneNumberHandler : ISingleQueryHandler<ClientByPhoneNumberQuery, Client>
+    internal class ClientByPhoneNumberHandler : IRequestHandler<ClientByPhoneNumberQuery, Client?>
     {
         private readonly DbContext _dataContext;
 

@@ -8,12 +8,6 @@ using MassTransit;
 
 namespace Crm.Commands.Clients.Commands
 {
-    public record CreateOrderCommand(
-        string Name,
-        string Email,
-        string PhoneNumber,
-        string Description) : ICommand;
-
     public record ClientByPhoneNumberQuery(
         string PhoneNumber) : ISingleQuery<Client>;
 

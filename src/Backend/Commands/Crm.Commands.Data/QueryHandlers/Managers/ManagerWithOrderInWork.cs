@@ -1,12 +1,13 @@
 ﻿using Crm.Commands.Core.Managers;
 using Crm.Commands.Managers.Commands;
 using Crm.Shared.Repository;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Z.EntityFramework.Plus;
 
 namespace Crm.Commands.Data.QueryHandlers.Managers
 {
-    internal class ManagerWithOrderInWorkHandler : ISingleQueryHandler<ManagerWithOrderInWorkQuery, Manager>
+    internal class ManagerWithOrderInWorkHandler : IRequestHandler<ManagerWithOrderInWorkQuery, Manager?>
     {
         private readonly DbContext _context;
 

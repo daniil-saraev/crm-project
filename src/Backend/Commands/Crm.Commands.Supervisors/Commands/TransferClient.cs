@@ -4,7 +4,7 @@ using Crm.Commands.Core.Supervisors;
 using Crm.Messages.Supervisors;
 using Crm.Shared.Messages;
 using Crm.Shared.Repository;
-using MassTransit;
+using MediatR;
 
 namespace Crm.Commands.Supervisors.Commands
 {
@@ -12,7 +12,7 @@ namespace Crm.Commands.Supervisors.Commands
         Guid SupervisorId,
         Guid FromManagerId,
         Guid ToManagerId,
-        Guid ClientId) : ICommand;
+        Guid ClientId) : IRequest<Result>;
 
     public record SupervisorWithManagersAndClientQuery(
         Guid SupervisorId,
@@ -20,7 +20,7 @@ namespace Crm.Commands.Supervisors.Commands
         Guid ToManagerId,
         Guid ClientId) : ISingleQuery<Supervisor>;
 
-    internal class TransferClientHandler : IConsumer<TransferClientCommand>
+    internal class TransferClientHandler : IRequestHandler<TransferClientCommand, Result>
     {
         private readonly IWriteRepository<Supervisor> _writeSupervisor;
         private readonly IReadRepository<Supervisor> _readSupervisor;
@@ -36,12 +36,7 @@ namespace Crm.Commands.Supervisors.Commands
             _eventBus = eventBus;
         }
 
-        public async Task Consume(ConsumeContext<TransferClientCommand> context)
-        {
-            await Handle(context.Message, context.CancellationToken);
-        }
-
-        private async Task<Result> Handle(TransferClientCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(TransferClientCommand request, CancellationToken cancellationToken)
         {
             var supervisor = await GetSupervisorWithManagersAndClient(
                     request.SupervisorId,

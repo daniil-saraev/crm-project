@@ -4,18 +4,18 @@ using Crm.Commands.Core.Supervisors;
 using Crm.Messages.Supervisors;
 using Crm.Shared.Messages;
 using Crm.Shared.Repository;
-using MassTransit;
+using MediatR;
 
 namespace Crm.Commands.Supervisors.Commands
 {
     public record AddNewManagerCommand(
         Guid SupervisorId,
-        Guid ManagerAccountId) : ICommand;
+        Guid ManagerAccountId) : IRequest<Result>;
 
     public record SupervisorWithManagersQuery(
         Guid SupervisorId) : ISingleQuery<Supervisor>;
 
-    internal class AddNewManagerHandler : IConsumer<AddNewManagerCommand>
+    internal class AddNewManagerHandler : IRequestHandler<AddNewManagerCommand, Result>
     {
         private readonly IWriteRepository<Supervisor> _writeSupervisor;
         private readonly IReadRepository<Supervisor> _readSupervisor;
@@ -31,12 +31,7 @@ namespace Crm.Commands.Supervisors.Commands
             _eventBus = eventBus;
         }
 
-        public async Task Consume(ConsumeContext<AddNewManagerCommand> context)
-        {
-            await Handle(context.Message, context.CancellationToken);
-        }
-
-        private async Task<Result> Handle(AddNewManagerCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(AddNewManagerCommand request, CancellationToken cancellationToken)
         {
             var supervisor = await GetSupervisorWithManagers(request.SupervisorId, cancellationToken);
             var manager = supervisor.AddNewManager(request.ManagerAccountId);

@@ -1,22 +1,21 @@
 ﻿using Ardalis.GuardClauses;
 using Ardalis.Result;
 using Crm.Commands.Core.Managers;
-using Crm.Shared.Messages;
 using Crm.Shared.Repository;
-using MassTransit;
+using MediatR;
 
 namespace Crm.Commands.Managers.Commands
 {
     public record EditOrderDescriptionCommand(
     Guid ManagerId,
     Guid OrderInWorkId,
-    string Description) : ICommand;
+    string Description) : IRequest<Result>;
 
     public record ManagerWithOrderInWorkQuery(
     Guid ManagerId,
     Guid OrderInWorkId) : ISingleQuery<Manager>;
 
-    internal class EditOrderDescriptionHandler : IConsumer<EditOrderDescriptionCommand>
+    internal class EditOrderDescriptionHandler : IRequestHandler<EditOrderDescriptionCommand, Result>
     {
         private readonly IReadRepository<Manager> _readManager;
         private readonly IWriteRepository<Manager> _writeManager;
@@ -27,12 +26,7 @@ namespace Crm.Commands.Managers.Commands
             _writeManager = writeManager;
         }
 
-        public async Task Consume(ConsumeContext<EditOrderDescriptionCommand> context)
-        {
-            await Handle(context.Message, context.CancellationToken);
-        }
-
-        private async Task<Result> Handle(EditOrderDescriptionCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(EditOrderDescriptionCommand request, CancellationToken cancellationToken)
         {
             var manager = await GetManagerWithOrder(request.ManagerId, request.OrderInWorkId, cancellationToken);
             manager.SetOrderDescription(request.OrderInWorkId, request.Description);

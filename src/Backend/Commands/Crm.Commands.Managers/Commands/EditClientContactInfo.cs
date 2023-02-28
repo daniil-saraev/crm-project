@@ -2,9 +2,8 @@
 using Ardalis.Result;
 using Crm.Commands.Core.Managers;
 using Crm.Commands.Managers.Commands.Shared;
-using Crm.Shared.Messages;
 using Crm.Shared.Repository;
-using MassTransit;
+using MediatR;
 
 namespace Crm.Commands.Managers.Commands
 {
@@ -12,9 +11,9 @@ namespace Crm.Commands.Managers.Commands
     Guid ManagerId,
     Guid ClientId,
     string Email,
-    string PhoneNumber) : ICommand;
+    string PhoneNumber) : IRequest<Result>;
 
-    internal class EditClientContactInfoHandler : IConsumer<EditClientContactInfoCommand>
+    internal class EditClientContactInfoHandler : IRequestHandler<EditClientContactInfoCommand, Result>
     {
         private readonly IReadRepository<Manager> _readManager;
         private readonly IWriteRepository<Manager> _writeManager;
@@ -25,12 +24,7 @@ namespace Crm.Commands.Managers.Commands
             _writeManager = writeManager;
         }
 
-        public async Task Consume(ConsumeContext<EditClientContactInfoCommand> context)
-        {
-            await Handle(context.Message, context.CancellationToken);
-        }
-
-        private async Task<Result> Handle(EditClientContactInfoCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(EditClientContactInfoCommand request, CancellationToken cancellationToken)
         {
             var manager = await GetManagerWithClient(request.ManagerId, request.ClientId, cancellationToken);
             manager.SetClientContactInfo(request.ClientId, request.Email, request.PhoneNumber);

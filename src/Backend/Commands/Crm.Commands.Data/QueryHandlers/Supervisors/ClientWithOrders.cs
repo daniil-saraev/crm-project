@@ -1,11 +1,12 @@
 ﻿using Crm.Commands.Core.Clients;
 using Crm.Commands.Supervisors.Commands;
 using Crm.Shared.Repository;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Crm.Commands.Data.QueryHandlers.Supervisors
 {
-    internal class ClientWithOrdersHandler : ISingleQueryHandler<ClientWithOrdersQuery, Client>
+    internal class ClientWithOrdersHandler : IRequestHandler<ClientWithOrdersQuery, Client?>
     {
         private readonly DbContext _dbContext;
 
