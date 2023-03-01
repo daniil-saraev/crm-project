@@ -1,5 +1,6 @@
 ﻿using Ardalis.GuardClauses;
 using Ardalis.Result;
+using Crm.Commands.Core.Extentions;
 using Crm.Commands.Core.Managers;
 using Crm.Messages.Managers;
 using Crm.Shared.Messages;
@@ -10,10 +11,10 @@ using static Crm.Commands.Core.Orders.CompletedOrder;
 namespace Crm.Commands.Managers.Commands
 {
     public record CompleteOrderCommand(
-    Guid ManagerId,
-    Guid ClientId,
-    Guid OrderInWorkId,
-    CompletionStatus Status,
+    string ManagerId,
+    string ClientId,
+    string OrderInWorkId,
+    string CompletionStatus,
     string Comment) : IRequest<Result<Guid>>;
 
     public record ManagerWithClientAndOrdersInWorkQuery(
@@ -36,15 +37,18 @@ namespace Crm.Commands.Managers.Commands
 
         public async Task<Result<Guid>> Handle(CompleteOrderCommand request, CancellationToken cancellationToken)
         {
-            var manager = await GetManagerWithClientAndOrdersInWork(request.ManagerId, request.ClientId, request.OrderInWorkId, cancellationToken);
-            var order = manager.CompleteOrder(request.OrderInWorkId, request.ClientId, request.Status, request.Comment);
+            var manager = await GetManagerWithClientAndOrdersInWork(
+                request.ManagerId.ToGuid(), request.ClientId.ToGuid(), request.OrderInWorkId.ToGuid(), cancellationToken);
+            var order = manager.CompleteOrder(
+                request.OrderInWorkId.ToGuid(), request.ClientId.ToGuid(), Enum.Parse<CompletionStatus>(request.CompletionStatus), request.Comment);
             await _writeManager.Update(manager, cancellationToken);
             await _writeManager.SaveChanges(cancellationToken);
             await _eventBus.Publish(new OrderCompletedEvent(manager.Id, order.Id), cancellationToken);
             return Result.Success(order.Id);
         }
 
-        private async Task<Manager> GetManagerWithClientAndOrdersInWork(Guid managerId, Guid clientId, Guid orderInWorkId, CancellationToken cancellationToken)
+        private async Task<Manager> GetManagerWithClientAndOrdersInWork(
+            Guid managerId, Guid clientId, Guid orderInWorkId, CancellationToken cancellationToken)
         {
             var manager = await _readManager.Execute(
             new ManagerWithClientAndOrdersInWorkQuery(managerId, clientId, orderInWorkId),

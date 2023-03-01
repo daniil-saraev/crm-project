@@ -1,4 +1,5 @@
-﻿using Crm.Commands.Core.Clients;
+﻿using Ardalis.Result;
+using Crm.Commands.Core.Clients;
 using Crm.Commands.Core.ExceptionHandler;
 using Crm.Commands.Core.Managers;
 using Crm.Commands.Core.Supervisors;
@@ -19,7 +20,7 @@ namespace Tests.Commands.Supervisors.Commands
         private readonly Mock<IWriteRepository<Supervisor>> _writeRepository = new();
         private readonly Mock<IReadRepository<Client>> _clientRepository = new();
         private readonly Mock<IMessageBus> _messageBus = new();
-        private readonly ExceptionHandlerBehavior<AssignClientCommand> _exceptionHandler;
+        private readonly ExceptionHandlerBehaviorReturnResult<AssignClientCommand, Result> _exceptionHandler;
         private readonly AssignClientHandler _commandHandler;
         private DbContext _dbContext => DbContextFactory.GetContext();
 
@@ -35,7 +36,7 @@ namespace Tests.Commands.Supervisors.Commands
         {
             // Arrange
             (Supervisor supervisor, Manager manager, Client client) = Setup();
-            var request = new AssignClientCommand(supervisor.Id, manager.Id, client.Id);
+            var request = new AssignClientCommand(supervisor.Id.ToString(), manager.Id.ToString(), client.Id.ToString());
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -59,7 +60,7 @@ namespace Tests.Commands.Supervisors.Commands
             (Supervisor supervisor, Manager manager, Client client) = Setup();
             _readRepository.Setup(r => r.Execute(It.IsAny<ISingleQuery<Supervisor>>(), default))
                 .Returns(Task.FromResult<Supervisor?>(null));
-            var request = new AssignClientCommand(supervisor.Id, manager.Id, client.Id);
+            var request = new AssignClientCommand(supervisor.Id.ToString(), manager.Id.ToString(), client.Id.ToString());
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -79,7 +80,7 @@ namespace Tests.Commands.Supervisors.Commands
             (Supervisor supervisor, Manager manager, Client client) = Setup();
             _clientRepository.Setup(r => r.Execute(It.IsAny<ISingleQuery<Client>>(), default))
                 .Returns(Task.FromResult<Client?>(null));
-            var request = new AssignClientCommand(supervisor.Id, manager.Id, client.Id);
+            var request = new AssignClientCommand(supervisor.Id.ToString(), manager.Id.ToString(), client.Id.ToString());
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -97,7 +98,7 @@ namespace Tests.Commands.Supervisors.Commands
         {
             // Arrange
             (Supervisor supervisor, Manager manager, Client client) = Setup();
-            var request = new AssignClientCommand(supervisor.Id, Guid.NewGuid(), client.Id);
+            var request = new AssignClientCommand(supervisor.Id.ToString(), Guid.NewGuid().ToString(), client.Id.ToString());
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -115,7 +116,7 @@ namespace Tests.Commands.Supervisors.Commands
         {
             // Arrange
             (Supervisor supervisor, Manager manager, Client client) = Setup();
-            var request = new AssignClientCommand(supervisor.Id, manager.Id, client.Id);
+            var request = new AssignClientCommand(supervisor.Id.ToString(), manager.Id.ToString(), client.Id.ToString());
             _writeRepository.Setup(r => r.SaveChanges(default)).ThrowsAsync(new Exception());
 
             // Act

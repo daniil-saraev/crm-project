@@ -1,5 +1,6 @@
 ﻿using Ardalis.GuardClauses;
 using Ardalis.Result;
+using Crm.Commands.Core.Extentions;
 using Crm.Commands.Core.Supervisors;
 using Crm.Messages.Supervisors;
 using Crm.Shared.Messages;
@@ -9,8 +10,8 @@ using MediatR;
 namespace Crm.Commands.Supervisors.Commands
 {
     public record AddNewManagerCommand(
-        Guid SupervisorId,
-        Guid ManagerAccountId) : IRequest<Result>;
+        string SupervisorId,
+        string ManagerAccountId) : IRequest<Result>;
 
     public record SupervisorWithManagersQuery(
         Guid SupervisorId) : ISingleQuery<Supervisor>;
@@ -33,8 +34,8 @@ namespace Crm.Commands.Supervisors.Commands
 
         public async Task<Result> Handle(AddNewManagerCommand request, CancellationToken cancellationToken)
         {
-            var supervisor = await GetSupervisorWithManagers(request.SupervisorId, cancellationToken);
-            var manager = supervisor.AddNewManager(request.ManagerAccountId);
+            var supervisor = await GetSupervisorWithManagers(request.SupervisorId.ToGuid(), cancellationToken);
+            var manager = supervisor.AddNewManager(request.ManagerAccountId.ToGuid());
             await _writeSupervisor.Update(supervisor, cancellationToken);
             await _writeSupervisor.SaveChanges(cancellationToken);
             await _eventBus.Publish(new NewManagerAddedEvent(supervisor.Id, manager.Id), cancellationToken);

@@ -1,0 +1,23 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "Crm.Commands.API";
+
+import "google/protobuf/wrappers.proto";
+
+package crm.commands.api;
+
+message Ok {
+	google.protobuf.StringValue payload = 1;
+}
+
+message NotFound {
+	string message = 1;
+}
+
+message Invalid {
+	string message = 1;
+} 
+
+message Error {
+	string message = 1;
+}

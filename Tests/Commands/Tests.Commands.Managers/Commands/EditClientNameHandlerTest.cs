@@ -14,7 +14,7 @@ namespace Tests.Commands.Managers.Commands
     {
         private readonly Mock<IReadRepository<Manager>> _readRepository = new();
         private readonly Mock<IWriteRepository<Manager>> _writeRepository = new();
-        private readonly ExceptionHandlerBehavior<EditClientNameCommand> _exceptionHandler;
+        private readonly ExceptionHandlerBehaviorReturnResult<EditClientNameCommand, Result> _exceptionHandler;
         private readonly EditClientNameHandler _commandHandler;
         private DbContext _dbContext => DbContextFactory.GetContext();
 
@@ -30,7 +30,7 @@ namespace Tests.Commands.Managers.Commands
             // Arrange
             (Manager manager, Client client) = Setup();
             const string name = "New name";
-            var request = new EditClientNameCommand(manager.Id, client.Id, name);
+            var request = new EditClientNameCommand(manager.Id.ToString(), client.Id.ToString(), name);
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -51,7 +51,7 @@ namespace Tests.Commands.Managers.Commands
             (Manager manager, Client client) = Setup();
             _readRepository.Setup(r => r.Execute(It.IsAny<ISingleQuery<Manager>>(), default))
                 .Returns(Task.FromResult<Manager?>(null));
-            var request = new EditClientNameCommand(Guid.NewGuid(), client.Id, "New name");
+            var request = new EditClientNameCommand(Guid.NewGuid().ToString(), client.Id.ToString(), "New name");
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -68,7 +68,7 @@ namespace Tests.Commands.Managers.Commands
         {
             // Arrange
             (Manager manager, Client client) = Setup();
-            var request = new EditClientNameCommand(manager.Id, Guid.NewGuid(), "New name");
+            var request = new EditClientNameCommand(manager.Id.ToString(), Guid.NewGuid().ToString(), "New name");
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -85,7 +85,7 @@ namespace Tests.Commands.Managers.Commands
         {
             // Arrange
             (Manager manager, Client client) = Setup();
-            var request = new EditClientNameCommand(manager.Id, client.Id, "");
+            var request = new EditClientNameCommand(manager.Id.ToString(), client.Id.ToString(), "");
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -102,7 +102,7 @@ namespace Tests.Commands.Managers.Commands
         {
             // Arrange
             (Manager manager, Client client) = Setup();
-            var request = new EditClientNameCommand(manager.Id, client.Id, "New name");
+            var request = new EditClientNameCommand(manager.Id.ToString(), client.Id.ToString(), "New name");
             _writeRepository.Setup(r => r.SaveChanges(It.IsAny<CancellationToken>())).ThrowsAsync(new Exception());
 
             // Act

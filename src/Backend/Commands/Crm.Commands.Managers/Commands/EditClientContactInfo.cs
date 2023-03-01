@@ -1,5 +1,6 @@
 ﻿using Ardalis.GuardClauses;
 using Ardalis.Result;
+using Crm.Commands.Core.Extentions;
 using Crm.Commands.Core.Managers;
 using Crm.Commands.Managers.Commands.Shared;
 using Crm.Shared.Repository;
@@ -8,8 +9,8 @@ using MediatR;
 namespace Crm.Commands.Managers.Commands
 {
     public record EditClientContactInfoCommand(
-    Guid ManagerId,
-    Guid ClientId,
+    string ManagerId,
+    string ClientId,
     string Email,
     string PhoneNumber) : IRequest<Result>;
 
@@ -26,8 +27,8 @@ namespace Crm.Commands.Managers.Commands
 
         public async Task<Result> Handle(EditClientContactInfoCommand request, CancellationToken cancellationToken)
         {
-            var manager = await GetManagerWithClient(request.ManagerId, request.ClientId, cancellationToken);
-            manager.SetClientContactInfo(request.ClientId, request.Email, request.PhoneNumber);
+            var manager = await GetManagerWithClient(request.ManagerId.ToGuid(), request.ClientId.ToGuid(), cancellationToken);
+            manager.SetClientContactInfo(request.ClientId.ToGuid(), request.Email, request.PhoneNumber);
             return await SaveChangesAndReturnSuccess(manager, cancellationToken);
         }
 

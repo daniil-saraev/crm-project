@@ -1,5 +1,6 @@
 ﻿using Ardalis.GuardClauses;
 using Ardalis.Result;
+using Crm.Commands.Core.Extentions;
 using Crm.Commands.Core.Supervisors;
 using Crm.Messages.Supervisors;
 using Crm.Shared.Messages;
@@ -9,9 +10,9 @@ using MediatR;
 namespace Crm.Commands.Supervisors.Commands
 {
     public record TransferManagerCommand(
-        Guid FromSupervisorId,
-        Guid ToSupervisorId,
-        Guid ManagerId) : IRequest<Result>;
+        string FromSupervisorId,
+        string ToSupervisorId,
+        string ManagerId) : IRequest<Result>;
 
     public record SupervisorsWithManagerQuery(
         Guid FromSupervisorId,
@@ -36,13 +37,16 @@ namespace Crm.Commands.Supervisors.Commands
 
         public async Task<Result> Handle(TransferManagerCommand request, CancellationToken cancellationToken)
         {
-            (Supervisor fromSupervisor, Supervisor toSupervisor)
-                = await GetSupervisorsWithManager(request.FromSupervisorId, request.ToSupervisorId, request.ManagerId, cancellationToken);
-            fromSupervisor.TransferManager(request.ManagerId, toSupervisor);
+            (Supervisor fromSupervisor, Supervisor toSupervisor) = await GetSupervisorsWithManager(
+                request.FromSupervisorId.ToGuid(), 
+                request.ToSupervisorId.ToGuid(), 
+                request.ManagerId.ToGuid(), 
+                cancellationToken);
+            fromSupervisor.TransferManager(request.ManagerId.ToGuid(), toSupervisor);
             await _writeSupervisor.Update(fromSupervisor, cancellationToken);
             await _writeSupervisor.Update(toSupervisor, cancellationToken);
             await _writeSupervisor.SaveChanges(cancellationToken);
-            await _eventBus.Publish(new NewManagerAddedEvent(toSupervisor.Id, request.ManagerId), cancellationToken);
+            await _eventBus.Publish(new NewManagerAddedEvent(toSupervisor.Id, request.ManagerId.ToGuid()), cancellationToken);
             return Result.Success();
         }
 

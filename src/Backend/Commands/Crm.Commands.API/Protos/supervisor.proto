@@ -1,0 +1,78 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "Crm.Commands.API";
+
+import "Protos/common.proto";
+
+package crm.commands.api;
+
+service Supervisor {
+	rpc AddNewManager (AddNewManagerRequest) returns (AddNewManagerResult);
+	rpc AssignClient (AssignClientRequest) returns (AssignClientResult);
+	rpc TransferClient (TransferClientRequest) returns (TransferClientResult);
+	rpc TransferManager (TransferManagerRequest) returns (TransferManagerResult);
+}
+
+// Add new manager
+message AddNewManagerRequest {
+	string supervisor_id = 1;
+	string manager_account_id = 2;
+}
+
+message AddNewManagerResult {
+	oneof result {
+		Ok ok = 1;
+		Invalid invalid = 2;
+		NotFound not_found=  3;
+		Error error = 4;
+	}
+}
+
+// Assign client
+message AssignClientRequest {
+	string supervisor_id = 1;
+	string manager_id = 2;
+	string client_id  = 3;
+}
+
+message AssignClientResult {
+	oneof result {
+		Ok ok = 1;
+		Invalid invalid = 2;
+		NotFound not_found=  3;
+		Error error = 4;
+	}
+}
+
+// Transfer client
+message TransferClientRequest {
+	string supervisor_id = 1;
+	string from_manager_id = 2;
+	string to_manager_id = 3;
+	string client_id = 4;
+}
+
+message TransferClientResult {
+	oneof result {
+		Ok ok = 1;
+		Invalid invalid = 2;
+		NotFound not_found=  3;
+		Error error = 4;
+	}
+}
+
+// Transfer manager
+message TransferManagerRequest {
+	string from_supervisor_id = 1;
+	string to_supervisor_id = 2;
+	string manager_id = 3;
+}
+
+message TransferManagerResult {
+	oneof result {
+		Ok ok = 1;
+		Invalid invalid = 2;
+		NotFound not_found=  3;
+		Error error = 4;
+	}
+}

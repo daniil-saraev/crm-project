@@ -1,4 +1,5 @@
-﻿using Crm.Commands.Core.ExceptionHandler;
+﻿using Ardalis.Result;
+using Crm.Commands.Core.ExceptionHandler;
 using Crm.Commands.Core.Managers;
 using Crm.Commands.Core.Supervisors;
 using Crm.Commands.Supervisors.Commands;
@@ -16,7 +17,7 @@ namespace Tests.Commands.Supervisors.Commands
         private readonly Mock<IReadRepository<Supervisor>> _readRepository = new();
         private readonly Mock<IWriteRepository<Supervisor>> _writeRepository = new();
         private readonly Mock<IMessageBus> _messageBus = new();
-        private readonly ExceptionHandlerBehavior<TransferManagerCommand> _exceptionHandler;
+        private readonly ExceptionHandlerBehaviorReturnResult<TransferManagerCommand, Result> _exceptionHandler;
         private readonly TransferManagerHandler _commandHandler;
         private DbContext _dbContext => DbContextFactory.GetContext();
 
@@ -32,7 +33,7 @@ namespace Tests.Commands.Supervisors.Commands
             // Arrange
             (Supervisor fromSupervisor, Supervisor toSupervisor, Manager manager)
                 = Setup();
-            var request = new TransferManagerCommand(fromSupervisor.Id, toSupervisor.Id, manager.Id);
+            var request = new TransferManagerCommand(fromSupervisor.Id.ToString(), toSupervisor.Id.ToString(), manager.Id.ToString());
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -58,7 +59,7 @@ namespace Tests.Commands.Supervisors.Commands
             // Arrange
             (Supervisor fromSupervisor, Supervisor toSupervisor, Manager manager)
                 = Setup();
-            var request = new TransferManagerCommand(fromSupervisor.Id, toSupervisor.Id, Guid.NewGuid());
+            var request = new TransferManagerCommand(fromSupervisor.Id.ToString(), toSupervisor.Id.ToString(), Guid.NewGuid().ToString());
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -77,7 +78,7 @@ namespace Tests.Commands.Supervisors.Commands
             // Arrange
             (Supervisor fromSupervisor, Supervisor toSupervisor, Manager manager)
                 = Setup();
-            var request = new TransferManagerCommand(fromSupervisor.Id, toSupervisor.Id, manager.Id);
+            var request = new TransferManagerCommand(fromSupervisor.Id.ToString(), toSupervisor.Id.ToString(), manager.Id.ToString());
             _readRepository.Setup(r => r.Execute(It.IsAny<ICollectionQuery<Supervisor>>(), default))
                 .Returns(Task.FromResult<IEnumerable<Supervisor>>(new List<Supervisor>()));
 
@@ -98,7 +99,7 @@ namespace Tests.Commands.Supervisors.Commands
             // Arrange
             (Supervisor fromSupervisor, Supervisor toSupervisor, Manager manager)
                 = Setup();
-            var request = new TransferManagerCommand(fromSupervisor.Id, toSupervisor.Id, manager.Id);
+            var request = new TransferManagerCommand(fromSupervisor.Id.ToString(), toSupervisor.Id.ToString(), manager.Id.ToString());
             _writeRepository.Setup(r => r.SaveChanges(default)).ThrowsAsync(new Exception());
 
             // Act

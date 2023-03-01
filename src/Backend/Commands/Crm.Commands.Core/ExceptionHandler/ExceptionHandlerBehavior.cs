@@ -5,11 +5,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Crm.Commands.Core.ExceptionHandler
 {
-    public class ExceptionHandlerBehavior<TRequest, TResult>
-        : IPipelineBehavior<TRequest, Result<TResult>>
-        where TRequest : IRequest<Result<TResult>>
+    public class ExceptionHandlerBehaviorReturnResult<TRequest, TResult>
+        : IPipelineBehavior<TRequest, TResult>
+        where TRequest : IRequest<TResult>
+        where TResult : Result
     {
-        public async Task<Result<TResult>> Handle(TRequest request, RequestHandlerDelegate<Result<TResult>> next, CancellationToken cancellationToken)
+        public async Task<TResult> Handle(TRequest request, RequestHandlerDelegate<TResult> next, CancellationToken cancellationToken)
         {
             try
             {
@@ -17,28 +18,33 @@ namespace Crm.Commands.Core.ExceptionHandler
             }
             catch (NotFoundException ex)
             {
-                return Result.NotFound(ex.Message);
+                return (TResult)Result.NotFound(ex.Message);
             }
             catch (ArgumentException ex)
             {
-                return Result.Invalid(new List<ValidationError> { new ValidationError { ErrorMessage = ex.Message } });
+                return (TResult)Result.Invalid(new List<ValidationError> { new ValidationError { ErrorMessage = ex.Message } });
             }
             catch (ValidationException ex)
             {
-                return Result.Invalid(new List<ValidationError> { new ValidationError { ErrorMessage = ex.Message } });
+                return (TResult)Result.Invalid(new List<ValidationError> { new ValidationError { ErrorMessage = ex.Message } });
+            }
+            catch (FormatException ex)
+            {
+                return (TResult)Result.Invalid(new List<ValidationError> { new ValidationError { ErrorMessage = ex.Message } });
             }
             catch (Exception ex)
             {
-                return Result.Error(ex.Message);
+                return (TResult)Result.Error(ex.Message);
             }
         }
     }
-
-    public class ExceptionHandlerBehavior<TRequest>
-        : IPipelineBehavior<TRequest, Result>
-        where TRequest : IRequest<Result>
+    
+    public class ExceptionHandlerBehaviorReturnResultWithGuid<TRequest, TResult>
+        : IPipelineBehavior<TRequest, TResult>
+        where TRequest : IRequest<TResult>
+        where TResult : Result<Guid>
     {
-        public async Task<Result> Handle(TRequest request, RequestHandlerDelegate<Result> next, CancellationToken cancellationToken)
+        public async Task<TResult> Handle(TRequest request, RequestHandlerDelegate<TResult> next, CancellationToken cancellationToken)
         {
             try
             {
@@ -46,19 +52,23 @@ namespace Crm.Commands.Core.ExceptionHandler
             }
             catch (NotFoundException ex)
             {
-                return Result.NotFound(ex.Message);
+                return (TResult)Result.NotFound(ex.Message);
             }
             catch (ArgumentException ex)
             {
-                return Result.Invalid(new List<ValidationError> { new ValidationError { ErrorMessage = ex.Message } });
+                return (TResult)Result.Invalid(new List<ValidationError> { new ValidationError { ErrorMessage = ex.Message } });
             }
             catch (ValidationException ex)
             {
-                return Result.Invalid(new List<ValidationError> { new ValidationError { ErrorMessage = ex.Message } });
+                return (TResult)Result.Invalid(new List<ValidationError> { new ValidationError { ErrorMessage = ex.Message } });
+            }
+            catch (FormatException ex)
+            {
+                return (TResult)Result.Invalid(new List<ValidationError> { new ValidationError { ErrorMessage = ex.Message } });
             }
             catch (Exception ex)
             {
-                return Result.Error(ex.Message);
+                return (TResult)Result.Error(ex.Message);
             }
         }
     }

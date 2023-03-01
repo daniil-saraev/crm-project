@@ -8,12 +8,12 @@ namespace Crm.Messages.Bus
 {
     public static class MessageBusModule
     {
-        public static void LoadMessageBusModule(this IServiceCollection services, MessageConfiguration settings)
+        public static void LoadMessageBusModule(this IServiceCollection services, MessageConfiguration settings, params Assembly[] assemblies)
         {
             services.AddTransient<IMessageBus, MessageBus>();
             services.AddMassTransit(cfg =>
             {
-                cfg.AddConsumers(Assembly.GetCallingAssembly());
+                cfg.AddConsumers(assemblies);
                 cfg.UsingRabbitMq((ctx, config) =>
                 {
                     config.Host(settings.Host, settings.VirtualHost, h =>

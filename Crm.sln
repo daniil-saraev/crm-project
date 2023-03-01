@@ -47,6 +47,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.Commands.Supervisors"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.Commands.Managers", "Tests\Commands\Tests.Commands.Managers\Tests.Commands.Managers.csproj", "{6D5E963C-44F7-420C-8DDC-51A885DE06E5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crm.Commands.API", "src\Backend\Commands\Crm.Commands.API\Crm.Commands.API.csproj", "{CD2F6987-6113-4E84-9DD8-FC6503E5A459}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -109,6 +111,10 @@ Global
 		{6D5E963C-44F7-420C-8DDC-51A885DE06E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D5E963C-44F7-420C-8DDC-51A885DE06E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D5E963C-44F7-420C-8DDC-51A885DE06E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD2F6987-6113-4E84-9DD8-FC6503E5A459}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD2F6987-6113-4E84-9DD8-FC6503E5A459}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD2F6987-6113-4E84-9DD8-FC6503E5A459}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD2F6987-6113-4E84-9DD8-FC6503E5A459}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -134,6 +140,7 @@ Global
 		{A387937B-B61F-41D4-BB9F-3C3FAE1F5178} = {EEDF260F-A7D3-4AAA-8EDC-0DF4EC92E516}
 		{0E7A679A-18CE-495C-B1CE-EE40D0F94CA8} = {EEDF260F-A7D3-4AAA-8EDC-0DF4EC92E516}
 		{6D5E963C-44F7-420C-8DDC-51A885DE06E5} = {EEDF260F-A7D3-4AAA-8EDC-0DF4EC92E516}
+		{CD2F6987-6113-4E84-9DD8-FC6503E5A459} = {DC5E29B5-D4F9-4A20-B747-A4367760E0C7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {06A48377-3067-4E62-9C2E-8CBEC11ACBC7}

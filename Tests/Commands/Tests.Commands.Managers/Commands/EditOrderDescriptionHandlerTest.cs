@@ -14,7 +14,7 @@ namespace Tests.Commands.Managers.Commands
     {
         private readonly Mock<IReadRepository<Manager>> _readRepository = new();
         private readonly Mock<IWriteRepository<Manager>> _writeRepository = new();
-        private readonly ExceptionHandlerBehavior<EditOrderDescriptionCommand> _exceptionHandler;
+        private readonly ExceptionHandlerBehaviorReturnResult<EditOrderDescriptionCommand, Result> _exceptionHandler;
         private readonly EditOrderDescriptionHandler _commandHandler;
         private DbContext _dbContext => DbContextFactory.GetContext();
 
@@ -30,7 +30,7 @@ namespace Tests.Commands.Managers.Commands
             // Arrange
             (Manager manager, OrderInWork order) = Setup();
             const string description = "Test";
-            var request = new EditOrderDescriptionCommand(manager.Id, order.Id, description);
+            var request = new EditOrderDescriptionCommand(manager.Id.ToString(), order.Id.ToString(), description);
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -51,7 +51,7 @@ namespace Tests.Commands.Managers.Commands
             (Manager manager, OrderInWork order) = Setup();
             _readRepository.Setup(r => r.Execute(It.IsAny<ISingleQuery<Manager>>(), default))
                 .Returns(Task.FromResult<Manager?>(null));
-            var request = new EditOrderDescriptionCommand(Guid.NewGuid(), order.Id, "Test");
+            var request = new EditOrderDescriptionCommand(Guid.NewGuid().ToString(), order.Id.ToString(), "Test");
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -68,7 +68,7 @@ namespace Tests.Commands.Managers.Commands
         {
             // Arrange
             (Manager manager, OrderInWork order) = Setup();
-            var request = new EditOrderDescriptionCommand(manager.Id, Guid.NewGuid(), "Test");
+            var request = new EditOrderDescriptionCommand(manager.Id.ToString(), Guid.NewGuid().ToString(), "Test");
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -85,7 +85,7 @@ namespace Tests.Commands.Managers.Commands
         {
             // Arrange
             (Manager manager, OrderInWork order) = Setup();
-            var request = new EditOrderDescriptionCommand(manager.Id, order.Id, "");
+            var request = new EditOrderDescriptionCommand(manager.Id.ToString(), order.Id.ToString(), "");
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -102,7 +102,7 @@ namespace Tests.Commands.Managers.Commands
         {
             // Arrange
             (Manager manager, OrderInWork order) = Setup();
-            var request = new EditOrderDescriptionCommand(manager.Id, order.Id, "Test");
+            var request = new EditOrderDescriptionCommand(manager.Id.ToString(), order.Id.ToString(), "Test");
             _writeRepository.Setup(r => r.SaveChanges(It.IsAny<CancellationToken>())).ThrowsAsync(new Exception());
 
             // Act

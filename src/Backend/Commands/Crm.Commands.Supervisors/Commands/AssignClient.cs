@@ -1,19 +1,19 @@
 ﻿using Ardalis.GuardClauses;
 using Ardalis.Result;
 using Crm.Commands.Core.Clients;
+using Crm.Commands.Core.Extentions;
 using Crm.Commands.Core.Supervisors;
 using Crm.Messages.Supervisors;
 using Crm.Shared.Messages;
 using Crm.Shared.Repository;
-using MassTransit;
 using MediatR;
 
 namespace Crm.Commands.Supervisors.Commands
 {
     public record AssignClientCommand(
-        Guid SupervisorId,
-        Guid ManagerId,
-        Guid ClientId) : IRequest<Result>;
+        string SupervisorId,
+        string ManagerId,
+        string ClientId) : IRequest<Result>;
 
     public record SupervisorWithManagerQuery(
         Guid SupervisorId,
@@ -43,12 +43,12 @@ namespace Crm.Commands.Supervisors.Commands
 
         public async Task<Result> Handle(AssignClientCommand request, CancellationToken cancellationToken)
         {
-            var supervisor = await GetSupervisorWithManager(request.SupervisorId, request.ManagerId, cancellationToken);
-            var client = await GetClientWithOrders(request.ClientId, cancellationToken);
-            supervisor.AssignClient(request.ManagerId, client);
+            var supervisor = await GetSupervisorWithManager(request.SupervisorId.ToGuid(), request.ManagerId.ToGuid(), cancellationToken);
+            var client = await GetClientWithOrders(request.ClientId.ToGuid(), cancellationToken);
+            supervisor.AssignClient(request.ManagerId.ToGuid(), client);
             await _writeSupervisor.Update(supervisor, cancellationToken);
             await _writeSupervisor.SaveChanges(cancellationToken);
-            await _eventBus.Publish(new NewClientAssignedEvent(request.ManagerId, client.Id), cancellationToken);
+            await _eventBus.Publish(new NewClientAssignedEvent(request.ManagerId.ToGuid(), client.Id), cancellationToken);
             return Result.Success();
         }
 

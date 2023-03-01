@@ -9,7 +9,7 @@ namespace Crm.Commands.Data.Context
 {
     internal class DataContext : DbContext
     {
-        internal DataContext(DbContextOptions<DataContext> options) : base(options) { }
+        public DataContext(DbContextOptions<DataContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

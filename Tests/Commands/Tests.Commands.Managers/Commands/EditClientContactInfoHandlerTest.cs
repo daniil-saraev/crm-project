@@ -15,7 +15,7 @@ namespace Tests.Commands.Managers.Commands
     {
         private readonly Mock<IReadRepository<Manager>> _readRepository = new();
         private readonly Mock<IWriteRepository<Manager>> _writeRepository = new();
-        private readonly ExceptionHandlerBehavior<EditClientContactInfoCommand> _exceptionHandler;
+        private readonly ExceptionHandlerBehaviorReturnResult<EditClientContactInfoCommand, Result> _exceptionHandler;
         private readonly EditClientContactInfoHandler _commandHandler;
         private DbContext _dbContext => DbContextFactory.GetContext();
 
@@ -31,7 +31,7 @@ namespace Tests.Commands.Managers.Commands
             // Arrange
             (Manager manager, Client client) = Setup();
             var newContactInfo = new ContactInfo("email@mail.com", "+12345678901");
-            var request = new EditClientContactInfoCommand(manager.Id, client.Id, newContactInfo.Email, newContactInfo.PhoneNumber);
+            var request = new EditClientContactInfoCommand(manager.Id.ToString(), client.Id.ToString(), newContactInfo.Email, newContactInfo.PhoneNumber);
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -52,7 +52,7 @@ namespace Tests.Commands.Managers.Commands
             (Manager manager, Client client) = Setup();
             _readRepository.Setup(r => r.Execute(It.IsAny<ISingleQuery<Manager>>(), default))
                 .Returns(Task.FromResult<Manager?>(null));
-            var request = new EditClientContactInfoCommand(Guid.NewGuid(), client.Id, "email@mail.com", "+71112223344");
+            var request = new EditClientContactInfoCommand(Guid.NewGuid().ToString(), client.Id.ToString(), "email@mail.com", "+71112223344");
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -69,7 +69,7 @@ namespace Tests.Commands.Managers.Commands
         {
             // Arrange
             (Manager manager, Client client) = Setup();
-            var request = new EditClientContactInfoCommand(manager.Id, Guid.NewGuid(), "email@mail.com", "+71112223344");
+            var request = new EditClientContactInfoCommand(manager.Id.ToString(), Guid.NewGuid().ToString(), "email@mail.com", "+71112223344");
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -86,7 +86,7 @@ namespace Tests.Commands.Managers.Commands
         {
             // Arrange
             (Manager manager, Client client) = Setup();
-            var request = new EditClientContactInfoCommand(manager.Id, client.Id, "", "");
+            var request = new EditClientContactInfoCommand(manager.Id.ToString(), client.Id.ToString(), "", "");
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -104,7 +104,7 @@ namespace Tests.Commands.Managers.Commands
             // Arrange
             (Manager manager, Client client) = Setup();
             var newContactInfo = new ContactInfo("email@mail.com", "+12345678901");
-            var request = new EditClientContactInfoCommand(manager.Id, client.Id, newContactInfo.Email, newContactInfo.PhoneNumber);
+            var request = new EditClientContactInfoCommand(manager.Id.ToString(), client.Id.ToString(), newContactInfo.Email, newContactInfo.PhoneNumber);
             _writeRepository.Setup(r => r.SaveChanges(It.IsAny<CancellationToken>())).ThrowsAsync(new Exception());
 
             // Act

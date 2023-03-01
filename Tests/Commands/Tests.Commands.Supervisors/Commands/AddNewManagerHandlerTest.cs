@@ -16,7 +16,7 @@ namespace Tests.Commands.Supervisors.Commands
         private readonly Mock<IReadRepository<Supervisor>> _readRepository = new();
         private readonly Mock<IWriteRepository<Supervisor>> _writeRepository = new();
         private readonly Mock<IMessageBus> _messageBus = new();
-        private readonly ExceptionHandlerBehavior<AddNewManagerCommand> _exceptionHandler;
+        private readonly ExceptionHandlerBehaviorReturnResult<AddNewManagerCommand, Result> _exceptionHandler;
         private readonly AddNewManagerHandler _commandHandler;
         private DbContext _dbContext => DbContextFactory.GetContext();
 
@@ -32,7 +32,7 @@ namespace Tests.Commands.Supervisors.Commands
             // Arrange
             var supervisor = Setup();
             var managerAccountId = Guid.NewGuid();
-            var request = new AddNewManagerCommand(supervisor.Id, managerAccountId);
+            var request = new AddNewManagerCommand(supervisor.Id.ToString(), managerAccountId.ToString());
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -55,7 +55,7 @@ namespace Tests.Commands.Supervisors.Commands
             // Arrange
             var supervisor = Setup();
             var managerAccountId = supervisor.Managers.First().Id;
-            var request = new AddNewManagerCommand(supervisor.Id, managerAccountId);
+            var request = new AddNewManagerCommand(supervisor.Id.ToString(), managerAccountId.ToString());
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -75,7 +75,7 @@ namespace Tests.Commands.Supervisors.Commands
             _readRepository.Setup(r => r.Execute(It.IsAny<ISingleQuery<Supervisor>>(), default))
                 .Returns(Task.FromResult<Supervisor?>(null));
             var managerAccountId = Guid.NewGuid();
-            var request = new AddNewManagerCommand(Guid.NewGuid(), managerAccountId);
+            var request = new AddNewManagerCommand(Guid.NewGuid().ToString(), managerAccountId.ToString());
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -94,7 +94,7 @@ namespace Tests.Commands.Supervisors.Commands
             // Arrange
             var supervisor = Setup();
             var managerAccountId = Guid.Empty;
-            var request = new AddNewManagerCommand(supervisor.Id, managerAccountId);
+            var request = new AddNewManagerCommand(supervisor.Id.ToString(), managerAccountId.ToString());
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -113,7 +113,7 @@ namespace Tests.Commands.Supervisors.Commands
             // Arrange
             var supervisor = Setup();
             var managerAccountId = Guid.NewGuid();
-            var request = new AddNewManagerCommand(supervisor.Id, managerAccountId);
+            var request = new AddNewManagerCommand(supervisor.Id.ToString(), managerAccountId.ToString());
             _writeRepository.Setup(r => r.SaveChanges(It.IsAny<CancellationToken>())).ThrowsAsync(new Exception());
 
             // Act

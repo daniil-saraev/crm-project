@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>51e2205c-1792-45f4-8ad6-d04c02b2ecbd</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..\..\..</DockerfileContext>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Protos\common.proto" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Grpc.AspNetCore" Version="2.51.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Shared\Crm.Messages.Bus\Crm.Messages.Bus.csproj" />
+    <ProjectReference Include="..\Crm.Commands.Clients\Crm.Commands.Clients.csproj" />
+    <ProjectReference Include="..\Crm.Commands.Data\Crm.Commands.Data.csproj" />
+    <ProjectReference Include="..\Crm.Commands.Managers\Crm.Commands.Managers.csproj" />
+    <ProjectReference Include="..\Crm.Commands.Supervisors\Crm.Commands.Supervisors.csproj" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<Protobuf Include="Protos\common.proto" GrpcServices="Server" ProtoCompile="True" />
+		<Protobuf Include="Protos\manager.proto" GrpcServices="Server" />
+		<Protobuf Include="Protos\supervisor.proto" GrpcServices="Server" />
+	</ItemGroup>
+
+</Project>

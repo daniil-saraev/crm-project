@@ -1,4 +1,5 @@
-﻿using Crm.Commands.Core.Clients;
+﻿using Ardalis.Result;
+using Crm.Commands.Core.Clients;
 using Crm.Commands.Core.ExceptionHandler;
 using Crm.Commands.Core.Managers;
 using Crm.Commands.Core.Supervisors;
@@ -17,7 +18,7 @@ namespace Tests.Commands.Supervisors.Commands
         private readonly Mock<IReadRepository<Supervisor>> _readRepository = new();
         private readonly Mock<IWriteRepository<Supervisor>> _writeRepository = new();
         private readonly Mock<IMessageBus> _messageBus = new();
-        private readonly ExceptionHandlerBehavior<TransferClientCommand> _exceptionHandler;
+        private readonly ExceptionHandlerBehaviorReturnResult<TransferClientCommand, Result> _exceptionHandler;
         private readonly TransferClientHandler _commandHandler;
         private DbContext _dbContext => DbContextFactory.GetContext();
 
@@ -33,7 +34,8 @@ namespace Tests.Commands.Supervisors.Commands
             // Arrange
             (Supervisor supervisor, Manager fromManager, Manager toManager, Client client)
                 = Setup();
-            var request = new TransferClientCommand(supervisor.Id, fromManager.Id, toManager.Id, client.Id);
+            var request = new TransferClientCommand(
+                supervisor.Id.ToString(), fromManager.Id.ToString(), toManager.Id.ToString(), client.Id.ToString());
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -56,7 +58,7 @@ namespace Tests.Commands.Supervisors.Commands
             // Arrange
             (Supervisor supervisor, Manager fromManager, Manager toManager, Client client)
                 = Setup();
-            var request = new TransferClientCommand(supervisor.Id, Guid.NewGuid(), toManager.Id, client.Id);
+            var request = new TransferClientCommand(supervisor.Id.ToString(), Guid.NewGuid().ToString(), toManager.Id.ToString(), client.Id.ToString());
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -75,7 +77,8 @@ namespace Tests.Commands.Supervisors.Commands
             // Arrange
             (Supervisor supervisor, Manager fromManager, Manager toManager, Client client)
                 = Setup();
-            var request = new TransferClientCommand(supervisor.Id, fromManager.Id, toManager.Id, Guid.NewGuid());
+            var request = new TransferClientCommand(
+                supervisor.Id.ToString(), fromManager.Id.ToString(), toManager.Id.ToString(), Guid.NewGuid().ToString());
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -96,7 +99,7 @@ namespace Tests.Commands.Supervisors.Commands
                 = Setup();
             _readRepository.Setup(r => r.Execute(It.IsAny<ISingleQuery<Supervisor>>(), default))
                 .Returns(Task.FromResult<Supervisor?>(null));
-            var request = new TransferClientCommand(supervisor.Id, fromManager.Id, toManager.Id, client.Id);
+            var request = new TransferClientCommand(supervisor.Id.ToString(), fromManager.Id.ToString(), toManager.Id.ToString(), client.Id.ToString());
 
             // Act
             var result = await _exceptionHandler.Handle(request, () => _commandHandler.Handle(request, default), default);
@@ -115,7 +118,7 @@ namespace Tests.Commands.Supervisors.Commands
             // Arrange
             (Supervisor supervisor, Manager fromManager, Manager toManager, Client client)
                 = Setup();
-            var request = new TransferClientCommand(supervisor.Id, fromManager.Id, toManager.Id, client.Id);
+            var request = new TransferClientCommand(supervisor.Id.ToString(), fromManager.Id.ToString(), toManager.Id.ToString(), client.Id.ToString());
             _writeRepository.Setup(r => r.SaveChanges(default)).ThrowsAsync(new Exception());
 
             // Act

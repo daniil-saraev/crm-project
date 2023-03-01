@@ -1,5 +1,6 @@
 ﻿using Ardalis.GuardClauses;
 using Ardalis.Result;
+using Crm.Commands.Core.Extentions;
 using Crm.Commands.Core.Supervisors;
 using Crm.Messages.Supervisors;
 using Crm.Shared.Messages;
@@ -9,10 +10,10 @@ using MediatR;
 namespace Crm.Commands.Supervisors.Commands
 {
     public record TransferClientCommand(
-        Guid SupervisorId,
-        Guid FromManagerId,
-        Guid ToManagerId,
-        Guid ClientId) : IRequest<Result>;
+        string SupervisorId,
+        string FromManagerId,
+        string ToManagerId,
+        string ClientId) : IRequest<Result>;
 
     public record SupervisorWithManagersAndClientQuery(
         Guid SupervisorId,
@@ -39,15 +40,18 @@ namespace Crm.Commands.Supervisors.Commands
         public async Task<Result> Handle(TransferClientCommand request, CancellationToken cancellationToken)
         {
             var supervisor = await GetSupervisorWithManagersAndClient(
-                    request.SupervisorId,
-                    request.FromManagerId,
-                    request.ToManagerId,
-                    request.ClientId,
+                    request.SupervisorId.ToGuid(),
+                    request.FromManagerId.ToGuid(),
+                    request.ToManagerId.ToGuid(),
+                    request.ClientId.ToGuid(),
                     cancellationToken);
-            supervisor.TransferClient(request.FromManagerId, request.ToManagerId, request.ClientId);
+            supervisor.TransferClient(request.FromManagerId.ToGuid(), request.ToManagerId.ToGuid(), request.ClientId.ToGuid());
             await _writeSupervisor.Update(supervisor, cancellationToken);
             await _writeSupervisor.SaveChanges(cancellationToken);
-            await _eventBus.Publish(new NewClientAssignedEvent(request.ToManagerId, request.ClientId), cancellationToken);
+            await _eventBus.Publish(new NewClientAssignedEvent(
+                request.ToManagerId.ToGuid(), 
+                request.ClientId.ToGuid()), 
+                cancellationToken);
             return Result.Success();
         }
 

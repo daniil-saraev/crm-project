@@ -1,5 +1,6 @@
 ﻿using Ardalis.GuardClauses;
 using Ardalis.Result;
+using Crm.Commands.Core.Extentions;
 using Crm.Commands.Core.Managers;
 using Crm.Shared.Repository;
 using MediatR;
@@ -7,8 +8,8 @@ using MediatR;
 namespace Crm.Commands.Managers.Commands
 {
     public record EditOrderDescriptionCommand(
-    Guid ManagerId,
-    Guid OrderInWorkId,
+    string ManagerId,
+    string OrderInWorkId,
     string Description) : IRequest<Result>;
 
     public record ManagerWithOrderInWorkQuery(
@@ -28,8 +29,8 @@ namespace Crm.Commands.Managers.Commands
 
         public async Task<Result> Handle(EditOrderDescriptionCommand request, CancellationToken cancellationToken)
         {
-            var manager = await GetManagerWithOrder(request.ManagerId, request.OrderInWorkId, cancellationToken);
-            manager.SetOrderDescription(request.OrderInWorkId, request.Description);
+            var manager = await GetManagerWithOrder(request.ManagerId.ToGuid(), request.OrderInWorkId.ToGuid(), cancellationToken);
+            manager.SetOrderDescription(request.OrderInWorkId.ToGuid(), request.Description);
             return await SaveChangesAndReturnSuccess(manager, cancellationToken);
         }
 

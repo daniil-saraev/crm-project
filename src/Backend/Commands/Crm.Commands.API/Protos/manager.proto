@@ -1,0 +1,81 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "Crm.Commands.API";
+
+import "Protos/common.proto";
+
+package crm.commands.api;
+
+service Manager {
+	rpc CompleteOrder (CompleteOrderRequest) returns (CompleteOrderResult);
+	rpc EditClientContactInfo (EditClientContactInfoRequest) returns (EditClientContactInfoResult);
+	rpc EditClientName (EditClientNameRequest) returns (EditClientNameResult);
+	rpc EditOrderDescription (EditOrderDescriptionRequest) returns (EditOrderDescriptionResult);
+}
+
+// Complete order
+message CompleteOrderRequest {
+	string manager_id = 1;
+	string client_id = 2;
+	string order_in_work_id = 3;
+	string completion_status = 4;
+	string comment = 5;
+}
+
+message CompleteOrderResult {
+	oneof result {
+		Ok ok = 1;
+		Invalid invalid = 2;
+		NotFound not_found=  3;
+		Error error = 4;
+	}
+}
+
+// Edit client contact info
+message EditClientContactInfoRequest {
+	string manager_id = 1;
+	string client_id = 2;
+	string email = 3;
+	string phone_number = 4;
+}
+
+message EditClientContactInfoResult {
+	oneof result {
+		Ok ok = 1;
+		Invalid invalid = 2;
+		NotFound not_found=  3;
+		Error error = 4;
+	}
+}
+
+// Edit client name
+message EditClientNameRequest {
+	string manager_id = 1;
+	string client_id = 2;
+	string name = 3;
+}
+
+message EditClientNameResult {
+	oneof result {
+		Ok ok = 1;
+		Invalid invalid = 2;
+		NotFound not_found=  3;
+		Error error = 4;
+	}
+}
+
+// Edit order description
+message EditOrderDescriptionRequest {
+	string manager_id = 1;
+	string order_in_work_id = 2;
+	string description = 3;
+}
+
+message EditOrderDescriptionResult {
+	oneof result {
+		Ok ok = 1;
+		Invalid invalid = 2;
+		NotFound not_found=  3;
+		Error error = 4;
+	}
+}

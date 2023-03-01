@@ -16,7 +16,7 @@ namespace Crm.Commands.Data
         /// </summary>
         public static void LoadDataModule(this IServiceCollection services, string? connectionString)
         {
-            services.AddDbContext<DataContext>(options =>
+            services.AddDbContext<DbContext, DataContext>(options =>
             {
                 if (connectionString == null)
                     options.UseInMemoryDatabase(nameof(DataContext));
